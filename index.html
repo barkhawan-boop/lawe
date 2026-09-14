@@ -7,12 +7,26 @@
     <link rel="stylesheet" href="styles.css">
   </head>
   <body>
+    <section id="pinGate" class="pin-gate" aria-labelledby="pinTitle">
+      <form id="pinForm" class="pin-card">
+        <p class="eyebrow">Hatwan Company</p>
+        <h1 id="pinTitle">خشتەی رۆژانەی کاشێر</h1>
+        <div class="field">
+          <label for="pinInput">PIN</label>
+          <input id="pinInput" type="password" inputmode="numeric" pattern="[0-9]{4}" minlength="4" maxlength="4" autocomplete="current-password" required aria-describedby="pinError">
+        </div>
+        <p id="pinError" role="alert" aria-live="polite"></p>
+        <button class="primary-button" type="submit">چوونەژوورەوە</button>
+      </form>
+    </section>
+    <div id="app" hidden>
     <header class="topbar">
       <div>
         <p class="eyebrow">Hatwan Company</p>
-        <h1>خشتەی ڕۆژانەی کاسێر</h1>
+        <h1>خشتەی رۆژانەی کاشێر</h1>
       </div>
       <div class="top-actions" dir="ltr">
+        <button id="lockBtn" class="command-button" type="button">داخستن</button>
         <button id="exportExcelBtn" class="command-button" type="button">Export Excel</button>
       </div>
     </header>
@@ -37,23 +51,7 @@
         </article>
       </section>
 
-      <section class="settings-band">
-        <div class="field">
-          <label for="businessDate">ڕێکەوت</label>
-          <input id="businessDate" type="date">
-        </div>
-        <div class="field">
-          <label for="openingUsd">دۆلاری سەرەتا</label>
-          <input id="openingUsd" type="number" step="0.01" inputmode="decimal">
-        </div>
-        <div class="field">
-          <label for="openingIqd">دیناری سەرەتا</label>
-          <input id="openingIqd" type="number" step="250" inputmode="decimal">
-        </div>
-        <button id="newDayBtn" class="danger-button" type="button">ڕۆژی نوێ</button>
-      </section>
-
-      <section class="workspace">
+<section class="workspace">
         <form id="entryForm" class="entry-panel" autocomplete="off">
           <div class="panel-title">
             <h2>تۆمارکردنی مامەڵە</h2>
@@ -199,6 +197,8 @@
       </section>
     </main>
 
-    <script src="script.js"></script>
+    </div>
+    <script src="auth-mode.js"></script>
+    <script src="auth.js"></script>
   </body>
 </html>

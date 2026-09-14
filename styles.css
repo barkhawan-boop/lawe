@@ -461,3 +461,14 @@ td[data-ltr="true"] {
     border-bottom: 2px solid #000;
   }
 }
+
+[hidden] { display: none !important; }
+.pin-gate { min-height: 100vh; display: grid; place-items: center; padding: 24px; }
+.pin-card { width: min(460px, 100%); padding: 32px; background: var(--surface); border: 1px solid var(--line); border-top: 5px solid var(--yellow); border-radius: 12px; box-shadow: var(--shadow); }
+.pin-card .eyebrow { color: var(--blue); }
+.pin-card h1 { font-size: 26px; margin: 8px 0 28px; }
+.pin-card input { text-align: center; direction: ltr; font-size: 28px; letter-spacing: 12px; }
+.pin-card button { width: 100%; }
+#pinError { min-height: 24px; color: var(--red); }
+button:disabled { cursor: wait; opacity: .6; }
+button:focus-visible { outline: 3px solid var(--blue-bright); outline-offset: 3px; }

@@ -1,7 +1,8 @@
 const STORAGE_KEY = "hatwan-cash-desk-v1";
 
 function currentDate() {
-  return new Date().toISOString().slice(0, 10);
+  const now = new Date();
+  return [now.getFullYear(), String(now.getMonth() + 1).padStart(2, "0"), String(now.getDate()).padStart(2, "0")].join("-");
 }
 
 const todayDate = currentDate();
@@ -57,11 +58,11 @@ const initialState = {
 let state = loadState();
 let activeKind = "buy";
 let editingId = null;
+state.records = state.records.map(record => ({ ...record, date: record.date || state.businessDate }));
+state.businessDate = currentDate();
+saveState();
 
 const els = {
-  businessDate: document.querySelector("#businessDate"),
-  openingUsd: document.querySelector("#openingUsd"),
-  openingIqd: document.querySelector("#openingIqd"),
   entryForm: document.querySelector("#entryForm"),
   exchangeFields: document.querySelector("#exchangeFields"),
   serviceFields: document.querySelector("#serviceFields"),
@@ -84,10 +85,9 @@ const els = {
 };
 
 function loadState() {
-  const saved = localStorage.getItem(STORAGE_KEY);
-  if (!saved) return structuredClone(initialState);
-
   try {
+    const saved = localStorage.getItem(STORAGE_KEY);
+    if (!saved) return structuredClone(initialState);
     return { ...structuredClone(initialState), ...JSON.parse(saved) };
   } catch {
     return structuredClone(initialState);
@@ -109,7 +109,7 @@ function money(value, currency = "IQD") {
 }
 
 function setTodayTime() {
-  els.actionDate.value = state.businessDate || currentDate();
+  els.actionDate.value = currentDate();
   els.time.value = new Date().toTimeString().slice(0, 5);
 }
 
@@ -224,9 +224,6 @@ function escapeHtml(value) {
 }
 
 function renderAll() {
-  els.businessDate.value = state.businessDate;
-  els.openingUsd.value = state.openingUsd;
-  els.openingIqd.value = state.openingIqd;
   renderSummary();
   renderTables();
 }
@@ -286,6 +283,7 @@ function validateRecord(record) {
 
 function saveRecord(event) {
   event.preventDefault();
+  syncCalendarDate();
   const record = recordFromForm();
   if (!validateRecord(record)) {
     alert("تکایە بڕ و نرخ بە دروستی بنووسە.");
@@ -331,6 +329,7 @@ function editRecord(id) {
 function deleteRecord(id) {
   if (!confirm("Delete this record?")) return;
   state.records = state.records.filter((record) => record.id !== id);
+  if (editingId === id) resetForm();
   saveState();
   renderAll();
 }
@@ -345,85 +344,19 @@ function download(filename, content, type) {
   URL.revokeObjectURL(url);
 }
 
-function excelCell(value, type = "String") {
-  const safeValue = escapeHtml(value ?? "");
-  return `<Cell><Data ss:Type="${type}">${safeValue}</Data></Cell>`;
-}
-
-function excelRow(values) {
-  return `<Row>${values.map((cell) => excelCell(cell.value, cell.type)).join("")}</Row>`;
-}
-
-function excelSheet(name, rows) {
-  return `
-    <Worksheet ss:Name="${escapeHtml(name)}">
-      <Table>${rows.join("")}</Table>
-    </Worksheet>
-  `;
-}
-
-function exportExcel() {
-  const t = totals();
-  const summaryRows = [
-    excelRow([
-      { value: "Hatwan Company" },
-      { value: "Daily Cash Desk" }
-    ]),
-    excelRow([{ value: "Business Date" }, { value: state.businessDate }]),
-    excelRow([{ value: "Opening USD" }, { value: state.openingUsd, type: "Number" }]),
-    excelRow([{ value: "Opening IQD" }, { value: state.openingIqd, type: "Number" }]),
-    excelRow([{ value: "Total Bought USD" }, { value: t.boughtUsd, type: "Number" }]),
-    excelRow([{ value: "IQD Paid" }, { value: t.iqdPaid, type: "Number" }]),
-    excelRow([{ value: "Total Sold USD" }, { value: t.soldUsd, type: "Number" }]),
-    excelRow([{ value: "IQD Received" }, { value: t.iqdReceived, type: "Number" }]),
-    excelRow([{ value: "Service Volume" }, { value: t.serviceVolume, type: "Number" }]),
-    excelRow([{ value: "Service Profit" }, { value: t.serviceProfit, type: "Number" }]),
-    excelRow([{ value: "Final USD" }, { value: numberValue(state.openingUsd) + t.boughtUsd - t.soldUsd, type: "Number" }]),
-    excelRow([{ value: "Final IQD" }, { value: numberValue(state.openingIqd) + t.iqdReceived - t.iqdPaid, type: "Number" }])
-  ];
-
-  const exchangeRows = [
-    excelRow(["#", "Type", "Action Date", "Time", "USD", "Rate", "IQD", "Customer", "Reference"].map((value) => ({ value }))),
-    ...state.records.filter((record) => ["buy", "sell"].includes(record.kind)).map((record, index) => excelRow([
-      { value: index + 1, type: "Number" },
-      { value: record.kind === "buy" ? "Buy" : "Sell" },
-      { value: record.date || state.businessDate },
-      { value: record.time || "" },
-      { value: record.usd, type: "Number" },
-      { value: record.rate, type: "Number" },
-      { value: record.iqd, type: "Number" },
-      { value: record.customer || "" },
-      { value: record.reference || "" }
-    ]))
-  ];
-
-  const serviceRows = [
-    excelRow(["#", "Service", "Direction", "Action Date", "Time", "Amount", "Fee", "Customer", "Reference"].map((value) => ({ value }))),
-    ...state.records.filter((record) => record.kind === "service").map((record, index) => excelRow([
-      { value: index + 1, type: "Number" },
-      { value: record.service || "" },
-      { value: record.direction || "" },
-      { value: record.date || state.businessDate },
-      { value: record.time || "" },
-      { value: record.amount, type: "Number" },
-      { value: record.fee, type: "Number" },
-      { value: record.customer || "" },
-      { value: record.reference || "" }
-    ]))
-  ];
-
-  const workbook = `<?xml version="1.0"?>
-<?mso-application progid="Excel.Sheet"?>
-<Workbook xmlns="urn:schemas-microsoft-com:office:spreadsheet"
-  xmlns:o="urn:schemas-microsoft-com:office:office"
-  xmlns:x="urn:schemas-microsoft-com:office:excel"
-  xmlns:ss="urn:schemas-microsoft-com:office:spreadsheet">
-  ${excelSheet("Summary", summaryRows)}
-  ${excelSheet("Exchange", exchangeRows)}
-  ${excelSheet("Services", serviceRows)}
-</Workbook>`;
-
-  download(`hatwan-${state.businessDate}.xls`, workbook, "application/vnd.ms-excel;charset=utf-8");
+async function exportExcel() {
+  const button = document.querySelector("#exportExcelBtn");
+  button.disabled = true;
+  try {
+    const workbook = await window.buildCashWorkbook(state);
+    const bytes = await workbook.xlsx.writeBuffer();
+    download('hatwan-' + currentDate() + '.xlsx', bytes,
+      'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+  } catch (error) {
+    alert("Excel export failed. Please retry. " + error.message);
+  } finally {
+    button.disabled = false;
+  }
 }
 
 document.querySelectorAll(".segment").forEach((button) => {
@@ -436,36 +369,22 @@ els.cancelEditBtn.addEventListener("click", resetForm);
 els.searchInput.addEventListener("input", renderTables);
 document.querySelector("#exportExcelBtn").addEventListener("click", exportExcel);
 
-els.businessDate.addEventListener("change", () => {
-  state.businessDate = els.businessDate.value;
-  if (!editingId) els.actionDate.value = state.businessDate;
+function syncCalendarDate() {
+  const nextDate = currentDate();
+  if (state.businessDate === nextDate) return;
+  const previousDate = state.businessDate;
+  state.businessDate = nextDate;
+  if (!editingId && (!els.actionDate.value || els.actionDate.value === previousDate)) {
+    els.actionDate.value = nextDate;
+    els.time.value = new Date().toTimeString().slice(0, 5);
+  }
   saveState();
-});
+}
 
-els.openingUsd.addEventListener("input", () => {
-  state.openingUsd = numberValue(els.openingUsd.value);
-  saveState();
-  renderSummary();
-});
-
-els.openingIqd.addEventListener("input", () => {
-  state.openingIqd = numberValue(els.openingIqd.value);
-  saveState();
-  renderSummary();
-});
-
-document.querySelector("#newDayBtn").addEventListener("click", () => {
-  if (!confirm("Start a new empty day? Make a backup first if you need today's records.")) return;
-  const t = totals();
-  state = {
-    businessDate: currentDate(),
-    openingUsd: numberValue(state.openingUsd) + t.boughtUsd - t.soldUsd,
-    openingIqd: numberValue(state.openingIqd) + t.iqdReceived - t.iqdPaid,
-    records: []
-  };
-  saveState();
-  resetForm();
-  renderAll();
+setInterval(syncCalendarDate, 1000);
+window.addEventListener("focus", syncCalendarDate);
+document.addEventListener("visibilitychange", () => {
+  if (!document.hidden) syncCalendarDate();
 });
 
 document.addEventListener("click", (event) => {
