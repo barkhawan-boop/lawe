@@ -1,0 +1,204 @@
+<!doctype html>
+<html lang="ku" dir="rtl">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Hatwan Company - Daily Cash Desk</title>
+    <link rel="stylesheet" href="styles.css">
+  </head>
+  <body>
+    <header class="topbar">
+      <div>
+        <p class="eyebrow">Hatwan Company</p>
+        <h1>خشتەی ڕۆژانەی کاسێر</h1>
+      </div>
+      <div class="top-actions" dir="ltr">
+        <button id="exportExcelBtn" class="command-button" type="button">Export Excel</button>
+      </div>
+    </header>
+
+    <main class="shell">
+      <section class="summary-grid" aria-label="Daily summary">
+        <article class="metric">
+          <span>دۆلاری بەردەست</span>
+          <strong id="usdBalance">$0</strong>
+        </article>
+        <article class="metric">
+          <span>دیناری بەردەست</span>
+          <strong id="iqdBalance">0 IQD</strong>
+        </article>
+        <article class="metric">
+          <span>قازانجی خزمەتگوزاری</span>
+          <strong id="serviceProfit">0 IQD</strong>
+        </article>
+        <article class="metric">
+          <span>کۆی مامەڵەکان</span>
+          <strong id="transactionCount">0</strong>
+        </article>
+      </section>
+
+      <section class="settings-band">
+        <div class="field">
+          <label for="businessDate">ڕێکەوت</label>
+          <input id="businessDate" type="date">
+        </div>
+        <div class="field">
+          <label for="openingUsd">دۆلاری سەرەتا</label>
+          <input id="openingUsd" type="number" step="0.01" inputmode="decimal">
+        </div>
+        <div class="field">
+          <label for="openingIqd">دیناری سەرەتا</label>
+          <input id="openingIqd" type="number" step="250" inputmode="decimal">
+        </div>
+        <button id="newDayBtn" class="danger-button" type="button">ڕۆژی نوێ</button>
+      </section>
+
+      <section class="workspace">
+        <form id="entryForm" class="entry-panel" autocomplete="off">
+          <div class="panel-title">
+            <h2>تۆمارکردنی مامەڵە</h2>
+            <span id="editingHint">نوێ</span>
+          </div>
+
+          <div class="segmented" role="tablist" aria-label="Transaction type">
+            <button class="segment is-active" type="button" data-kind="buy">کڕین</button>
+            <button class="segment" type="button" data-kind="sell">فرۆشتن</button>
+            <button class="segment" type="button" data-kind="service">خزمەتگوزاری</button>
+          </div>
+
+          <div id="exchangeFields" class="form-grid">
+            <div class="field">
+              <label for="usdAmount">بڕی دۆلار</label>
+              <input id="usdAmount" type="number" min="0" step="0.01" inputmode="decimal">
+            </div>
+            <div class="field">
+              <label for="rate">نرخ</label>
+              <input id="rate" type="number" min="0" step="0.01" inputmode="decimal">
+            </div>
+            <div class="field readonly">
+              <label for="iqdAmount">بڕی دینار</label>
+              <input id="iqdAmount" type="text" readonly>
+            </div>
+          </div>
+
+          <div id="serviceFields" class="form-grid is-hidden">
+            <div class="field">
+              <label for="serviceName">جۆری خزمەتگوزاری</label>
+              <select id="serviceName">
+                <option>FIB</option>
+                <option>Qi Card</option>
+                <option>FastPay</option>
+                <option>NassWallet</option>
+                <option>AsiaPay</option>
+                <option>Other</option>
+              </select>
+            </div>
+            <div class="field">
+              <label for="serviceDirection">کردار</label>
+              <select id="serviceDirection">
+                <option value="deposit">Deposit / پارەدانان</option>
+                <option value="withdraw">Withdraw / پارەوەرگرتن</option>
+              </select>
+            </div>
+            <div class="field">
+              <label for="serviceAmount">بڕی پارە</label>
+              <input id="serviceAmount" type="number" min="0" step="250" inputmode="decimal">
+            </div>
+            <div class="field">
+              <label for="serviceFee">کرێ / قازانج</label>
+              <input id="serviceFee" type="number" min="0" step="250" inputmode="decimal">
+            </div>
+          </div>
+
+          <div class="form-grid">
+            <div class="field">
+              <label for="actionDate">ڕێکەوتی مامەڵە</label>
+              <input id="actionDate" type="date">
+            </div>
+            <div class="field">
+              <label for="customer">ناوی کڕیار <span class="optional-label">ئارەزوومەندانە</span></label>
+              <input id="customer" type="text" autocomplete="off" placeholder="دەتوانیت بەتاڵی بهێڵیت">
+            </div>
+            <div class="field">
+              <label for="reference">ژمارە / تێبینی <span class="optional-label">ئارەزوومەندانە</span></label>
+              <input id="reference" type="text" autocomplete="off" placeholder="دەتوانیت بەتاڵی بهێڵیت">
+            </div>
+            <div class="field">
+              <label for="time">کات</label>
+              <input id="time" type="time">
+            </div>
+          </div>
+
+          <div class="form-actions" dir="ltr">
+            <button id="cancelEditBtn" class="ghost-button is-hidden" type="button">Cancel</button>
+            <button class="primary-button" type="submit">Save Record</button>
+          </div>
+        </form>
+
+        <aside class="report-panel">
+          <h2>خشتەی گشتی</h2>
+          <dl class="report-list">
+            <div><dt>کڕینی گشتی</dt><dd id="totalBought">$0</dd></div>
+            <div><dt>دیناری پێدراو</dt><dd id="totalIqdPaid">0 IQD</dd></div>
+            <div><dt>فرۆشتنی گشتی</dt><dd id="totalSold">$0</dd></div>
+            <div><dt>دیناری وەرگیراو</dt><dd id="totalIqdReceived">0 IQD</dd></div>
+            <div><dt>خزمەتگوزاری</dt><dd id="totalServiceVolume">0 IQD</dd></div>
+          </dl>
+        </aside>
+      </section>
+
+      <section class="tables">
+        <div class="table-header">
+          <h2>کڕین و فرۆشتنی دۆلار</h2>
+          <input id="searchInput" type="search" placeholder="گەڕان...">
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>ژ</th>
+                <th>جۆر</th>
+                <th>دۆلار</th>
+                <th>نرخ</th>
+                <th>دینار</th>
+                <th>ڕێکەوت</th>
+                <th>کات</th>
+                <th>کڕیار</th>
+                <th>تێبینی</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody id="exchangeBody"></tbody>
+          </table>
+        </div>
+      </section>
+
+      <section class="tables">
+        <div class="table-header">
+          <h2>FIB, Qi Card, FastPay</h2>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>ژ</th>
+                <th>خزمەتگوزاری</th>
+                <th>کردار</th>
+                <th>بڕ</th>
+                <th>کرێ</th>
+                <th>ڕێکەوت</th>
+                <th>کات</th>
+                <th>کڕیار</th>
+                <th>تێبینی</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody id="serviceBody"></tbody>
+          </table>
+        </div>
+      </section>
+    </main>
+
+    <script src="script.js"></script>
+  </body>
+</html>
