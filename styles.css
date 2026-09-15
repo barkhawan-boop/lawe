@@ -472,3 +472,10 @@ td[data-ltr="true"] {
 #pinError { min-height: 24px; color: var(--red); }
 button:disabled { cursor: wait; opacity: .6; }
 button:focus-visible { outline: 3px solid var(--blue-bright); outline-offset: 3px; }
+
+.site-footer { width: min(1440px, 100%); margin: 0 auto; padding: 0 clamp(14px, 3vw, 34px) 34px; }
+.footer-brand { display: flex; align-items: center; gap: 14px; direction: ltr; color: var(--muted); }
+.footer-brand img { width: 76px; height: 76px; object-fit: cover; border-radius: 50%; border: 3px solid var(--blue-bright); }
+.footer-brand div { display: grid; gap: 2px; direction: ltr; text-align: left; }
+.footer-brand strong { color: var(--blue-dark); }
+.footer-brand a { color: var(--blue-bright); text-decoration: none; font-weight: 700; }
