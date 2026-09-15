@@ -1,6 +1,7 @@
+@font-face { font-family: 'Sarchia Baran'; src: url('assets/sarchia-baran.ttf') format('truetype'); font-weight: 100 900; font-style: normal; font-display: swap; }
 :root {
   color-scheme: light;
-  --font-kurdish: "Sarchia Baran", "Sarchia_Baran", "Sarchia Baran Regular", "Segoe UI", Tahoma, Arial, sans-serif;
+  --font-kurdish: "Sarchia Baran", "Sarchia-Baran", "Sarchia_Baran", "Sarchia Baran Regular", sans-serif;
   --bg: #eaf2fb;
   --surface: rgba(255, 255, 255, 0.94);
   --surface-soft: #edf6ff;
@@ -491,3 +492,14 @@ button:focus-visible { outline: 3px solid var(--blue-bright); outline-offset: 3p
 
 .table-filters { display:flex; gap:8px; flex-wrap:wrap; }
 .table-filters input { min-height:42px; border:1px solid var(--line); border-radius:6px; padding:9px; }
+
+:root[data-theme='dark'] { color-scheme: dark; --bg:#071a32; --surface:rgba(10,31,58,.94); --surface-soft:#102e52; --ink:#eef6ff; --muted:#a9c1dc; --line:#28517c; --blue:#4fb7ff; --blue-dark:#d7edff; --blue-bright:#39a9ff; --yellow:#ffd45a; --shadow:0 18px 46px rgba(0,0,0,.4); }
+:root[data-theme='dark'] body { background:radial-gradient(circle at 15% 0%,rgba(57,169,255,.22),transparent 35%),linear-gradient(135deg,#06152a,#0d2948 55%,#06152a); }
+:root[data-theme='dark'] .field input, :root[data-theme='dark'] .field select, :root[data-theme='dark'] .table-header input, :root[data-theme='dark'] .table-filters input { background:#0b2340; color:var(--ink); }
+.topbar { box-shadow:0 8px 30px rgba(13,92,158,.28); }
+.metric, .entry-panel, .report-panel, .tables { box-shadow:0 16px 42px rgba(15,76,129,.14),0 0 0 1px rgba(245,200,76,.08); }
+
+.topbar .top-actions { inset-inline-start: auto; inset-inline-end: clamp(18px, 4vw, 48px); }
+#themeToggle { width: 44px; min-width: 44px; padding: 8px; font-size: 22px; line-height: 1; }
+
+

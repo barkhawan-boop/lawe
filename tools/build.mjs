@@ -4,11 +4,13 @@ await copyFile('node_modules/exceljs/dist/exceljs.min.js', 'vendor/exceljs.min.j
 await copyFile('node_modules/exceljs/LICENSE', 'vendor/exceljs.LICENSE');
 await mkdir('dist/vendor', { recursive: true });
 await mkdir('dist/assets', { recursive: true });
-for (const file of ['index.html', 'styles.css', 'script.js', 'auth.js', 'export.js', 'assets/myapps-logo.jpg', 'vendor/exceljs.min.js', 'vendor/exceljs.LICENSE']) {
+for (const file of ['index.html', 'styles.css', 'script.js', 'auth.js', 'export.js', 'assets/myapps-logo.jpg', 'assets/sarchia-baran.ttf', 'theme.js', 'vendor/exceljs.min.js', 'vendor/exceljs.LICENSE']) {
   await copyFile(file, `dist/${file}`);
 }
 // Production cannot fall back to browser-only authentication.
 await writeFile('dist/auth-mode.js', 'window.LAWE_SERVER_AUTH = true;\n');
 console.log('Cloudflare assets built in dist/');
+
+
 
 

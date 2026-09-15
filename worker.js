@@ -1,7 +1,7 @@
 const encoder = new TextEncoder();
 const SESSION_SECONDS = 8 * 60 * 60;
 const cookieName = 'lawe_session';
-const publicAssets = new Set(['/', '/index.html', '/styles.css', '/auth.js', '/auth-mode.js', '/assets/myapps-logo.jpg']);
+const publicAssets = new Set(['/', '/index.html', '/styles.css', '/auth.js', '/auth-mode.js', '/assets/myapps-logo.jpg', '/assets/sarchia-baran.ttf', '/theme.js']);
 const protectedAssets = new Set(['/script.js', '/export.js', '/vendor/exceljs.min.js', '/vendor/exceljs.LICENSE']);
 
 function respond(body, status = 200, extra = {}) {
@@ -82,5 +82,7 @@ export default {
     return new Response(asset.body, { status: asset.status, headers });
   }
 };
+
+
 
 
