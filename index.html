@@ -27,12 +27,12 @@
       </div>
       <div class="top-actions" dir="ltr">
         <button id="lockBtn" class="command-button" type="button">داخستن</button>
-        <button id="exportExcelBtn" class="command-button" type="button">Export Excel</button>
+        <button id="exportExcelBtn" class="command-button cashier-only" type="button">Export Excel</button>
       </div>
     </header>
 
     <main class="shell">
-      <section class="summary-grid" aria-label="Daily summary">
+      <section class="summary-grid cashier-only" aria-label="Daily summary">
         <article class="metric">
           <span>دۆلاری بەردەست</span>
           <strong id="usdBalance">$0</strong>
@@ -51,7 +51,7 @@
         </article>
       </section>
 
-<section class="workspace">
+<section class="workspace cashier-only">
         <form id="entryForm" class="entry-panel" autocomplete="off">
           <div class="panel-title">
             <h2>تۆمارکردنی مامەڵە</h2>
@@ -210,5 +210,6 @@
     <script src="auth.js"></script>
   </body>
 </html>
+
 
 

@@ -17,7 +17,7 @@
       document.body.append(script);
     });
   }
-  async function unlock() {
+  async function unlock() {`r`n    const bossMode = input.value === '1122';`r`n    document.body.classList.toggle('boss-mode', bossMode);
     if (!loaded) {
       await loadScript('export.js');
       await loadScript('script.js');
@@ -81,3 +81,4 @@
   setInterval(() => { void checkSession(); }, 60000);
   input.focus();
 })();
+

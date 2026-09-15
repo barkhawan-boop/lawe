@@ -484,3 +484,7 @@ button:focus-visible { outline: 3px solid var(--blue-bright); outline-offset: 3p
 .pin-card .field { text-align: center; }
 .topbar > div:first-child { text-align: center; flex: 1; }
 .topbar .top-actions { position: absolute; inset-inline-start: clamp(18px, 4vw, 48px); }
+
+.boss-mode .cashier-only { display: none !important; }
+.boss-mode .tables { margin-top: 14px; }
+.boss-mode .table-header { justify-content: center; text-align: center; }
