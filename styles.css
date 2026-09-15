@@ -488,3 +488,6 @@ button:focus-visible { outline: 3px solid var(--blue-bright); outline-offset: 3p
 .boss-mode .cashier-only { display: none !important; }
 .boss-mode .tables { margin-top: 14px; }
 .boss-mode .table-header { justify-content: center; text-align: center; }
+
+.table-filters { display:flex; gap:8px; flex-wrap:wrap; }
+.table-filters input { min-height:42px; border:1px solid var(--line); border-radius:6px; padding:9px; }

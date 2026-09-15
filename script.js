@@ -79,7 +79,7 @@ const els = {
   time: document.querySelector("#time"),
   exchangeBody: document.querySelector("#exchangeBody"),
   serviceBody: document.querySelector("#serviceBody"),
-  searchInput: document.querySelector("#searchInput"),
+  searchInput: document.querySelector("#searchInput"),`r`n  dateFilter: document.querySelector("#dateFilter"),`r`n  monthFilter: document.querySelector("#monthFilter"),
   editingHint: document.querySelector("#editingHint"),
   cancelEditBtn: document.querySelector("#cancelEditBtn")
 };
@@ -174,7 +174,7 @@ function rowActions(record) {
 }
 
 function renderTables() {
-  const search = els.searchInput.value.trim().toLowerCase();
+  const search = els.searchInput.value.trim().toLowerCase();`r`n  const dateFilter = els.dateFilter.value;`r`n  const monthFilter = els.monthFilter.value;
   const exchangeRecords = state.records.filter((record) => ["buy", "sell"].includes(record.kind));
   const serviceRecords = state.records.filter((record) => record.kind === "service");
   const visibleExchange = exchangeRecords.filter((record) => {
@@ -366,7 +366,7 @@ document.querySelectorAll(".segment").forEach((button) => {
 [els.usdAmount, els.rate].forEach((input) => input.addEventListener("input", calculateIqd));
 els.entryForm.addEventListener("submit", saveRecord);
 els.cancelEditBtn.addEventListener("click", resetForm);
-els.searchInput.addEventListener("input", renderTables);
+els.searchInput.addEventListener("input", renderTables);`r`nels.dateFilter.addEventListener("input", renderTables);`r`nels.monthFilter.addEventListener("input", renderTables);
 document.querySelector("#exportExcelBtn").addEventListener("click", exportExcel);
 
 function syncCalendarDate() {
@@ -396,3 +396,4 @@ document.addEventListener("click", (event) => {
 
 setTodayTime();
 renderAll();
+
