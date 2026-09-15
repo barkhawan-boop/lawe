@@ -26,7 +26,7 @@
         <h1>خشتەی رۆژانەی کاشێر</h1>
       </div>
       <div class="top-actions" dir="ltr">
-        <button id="lockBtn" class="command-button" type="button">داخستن</button>
+        <button id="themeToggle" class="command-button" type="button">☾ Dark mode</button>        <button id="lockBtn" class="command-button" type="button">داخستن</button>
         <button id="exportExcelBtn" class="command-button cashier-only" type="button">Export Excel</button>
       </div>
     </header>
@@ -148,11 +148,12 @@
       <section class="tables">
         <div class="table-header">
           <h2>کڕین و فرۆشتنی دۆلار</h2>
-          <div class="table-filters"><input id="searchInput" type="search" placeholder="گەڕان..."><input id="dateFilter" type="date"><input id="monthFilter" type="month"></div>
+          
         </div>
         <div class="table-wrap">
           <table>
             <thead>
+              <tr class="filter-row"><th colspan="10"><div class="table-filters"><select id="kindFilter"><option value="">هەموو جۆرەکان</option><option value="buy">کڕین</option><option value="sell">فرۆشتن</option></select><input id="minAmount" type="number" min="0" placeholder="کەمترین بڕ"><input id="maxAmount" type="number" min="0" placeholder="زۆرترین بڕ"><label>لە <input id="fromDate" type="date"></label><label>تا <input id="toDate" type="date"></label></div></th></tr>
               <tr>
                 <th>ژ</th>
                 <th>جۆر</th>
@@ -178,6 +179,7 @@
         <div class="table-wrap">
           <table>
             <thead>
+              <tr class="filter-row"><th colspan="10"><div class="table-filters"><select id="kindFilter"><option value="">هەموو جۆرەکان</option><option value="buy">کڕین</option><option value="sell">فرۆشتن</option></select><input id="minAmount" type="number" min="0" placeholder="کەمترین بڕ"><input id="maxAmount" type="number" min="0" placeholder="زۆرترین بڕ"><label>لە <input id="fromDate" type="date"></label><label>تا <input id="toDate" type="date"></label></div></th></tr>
               <tr>
                 <th>ژ</th>
                 <th>خزمەتگوزاری</th>
@@ -195,7 +197,7 @@
           </table>
         </div>
       </section>
-    </main>`r`n`r`n    <footer class="site-footer" aria-label="MyApps attribution">
+    </main>    <footer class="site-footer" aria-label="MyApps attribution">
       <div class="footer-brand">
         <img src="assets/myapps-logo.jpg" alt="MyApps logo">
         <div>
@@ -206,10 +208,17 @@
       </div>
     </footer>
     </div>
-    <script src="auth-mode.js"></script>
+    <script src="theme.js"></script>    <script src="auth-mode.js"></script>
     <script src="auth.js"></script>
   </body>
 </html>
+
+
+
+
+
+
+
 
 
 
