@@ -15,7 +15,7 @@ async function key(secret) {
 }
 function hex(bytes) { return Array.from(new Uint8Array(bytes), b => b.toString(16).padStart(2, '0')).join(''); }
 async function authenticated(request, env) {
-  if (!env.SESSION_SECRET || !env.APP_PIN) return false;
+  if (!env.SESSION_SECRET || (!env.APP_PIN && !env.BOSS_PIN)) return false;
   const token = request.headers.get('Cookie')?.split(';').map(v => v.trim()).find(v => v.startsWith(cookieName + '='))?.slice(cookieName.length + 1);
   if (!token) return false;
   const [expiry, nonce, signature] = token.split('.');
@@ -57,13 +57,13 @@ export default {
       if (request.headers.get('Origin') !== url.origin) return respond('{"error":"Invalid origin"}', 403);
       if (url.pathname === '/api/logout') return respond('{}', 200, { 'Set-Cookie': cookie('', 0, request) });
       if (url.pathname !== '/api/login') return respond('{"error":"Not found"}', 404);
-      if (!env.APP_PIN || !env.SESSION_SECRET || !env.LOGIN_LIMITER) return respond('{"error":"PIN service is not configured"}', 503);
+      if ((!env.APP_PIN && !env.BOSS_PIN) || !env.SESSION_SECRET || !env.LOGIN_LIMITER) return respond('{"error":"PIN service is not configured"}', 503);
       const limit = await env.LOGIN_LIMITER.limit({ key: 'login:' + (request.headers.get('CF-Connecting-IP') || 'local') });
       if (!limit.success) return respond('{"error":"Too many attempts. Try again in one minute."}', 429, { 'Retry-After': '60' });
       let input;
       try { input = await readSmallJson(request); } catch { return respond('{"error":"Invalid request"}', 400); }
       if (typeof input?.pin !== 'string' || !/^\d{4}$/.test(input.pin)) return respond('{"error":"Incorrect PIN"}', 401);
-      const expected = await crypto.subtle.digest('SHA-256', encoder.encode(env.APP_PIN));
+      const expected = await crypto.subtle.digest('SHA-256', encoder.encode(input.pin === env.BOSS_PIN ? env.BOSS_PIN : env.APP_PIN));
       const actual = await crypto.subtle.digest('SHA-256', encoder.encode(input.pin));
       if (!crypto.subtle.timingSafeEqual(expected, actual)) return respond('{"error":"Incorrect PIN"}', 401);
       const payload = Math.floor(Date.now() / 1000 + SESSION_SECONDS) + '.' + hex(crypto.getRandomValues(new Uint8Array(16)));
@@ -82,4 +82,5 @@ export default {
     return new Response(asset.body, { status: asset.status, headers });
   }
 };
+
 

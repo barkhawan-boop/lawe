@@ -479,3 +479,8 @@ button:focus-visible { outline: 3px solid var(--blue-bright); outline-offset: 3p
 .footer-brand div { display: grid; gap: 2px; direction: ltr; text-align: left; }
 .footer-brand strong { color: var(--blue-dark); }
 .footer-brand a { color: var(--blue-bright); text-decoration: none; font-weight: 700; }
+
+.pin-card, .pin-card .eyebrow, .pin-card h1, .pin-card label, .pin-card button { text-align: center; }
+.pin-card .field { text-align: center; }
+.topbar > div:first-child { text-align: center; flex: 1; }
+.topbar .top-actions { position: absolute; inset-inline-start: clamp(18px, 4vw, 48px); }
