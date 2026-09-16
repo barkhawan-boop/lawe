@@ -48,7 +48,7 @@
   function exchangeSheet(wb, name, kind, records, today) {
     const sheet = setupSheet(wb, name, [6, 25.71, 17.71, 30.28, 18, 16, 23, 30]);
     sheet.mergeCells('A1:D3');
-    sheet.getCell('A1').value = 'Hatwan Company';
+    sheet.getCell('A1').value = 'Lawe Company';
     decorate(sheet.getCell('A1'), purple, 'FF000000', 40);
     sheet.mergeCells('E1:H3');
     sheet.getCell('E1').value = today;
@@ -90,7 +90,7 @@
   function servicesSheet(wb, records, today) {
     const sheet = setupSheet(wb, 'خزمەتگوزاری', [6, 20, 18, 24, 22, 18, 16, 23, 30]);
     sheet.mergeCells('A1:F3');
-    sheet.getCell('A1').value = 'Hatwan Company';
+    sheet.getCell('A1').value = 'Lawe Company';
     decorate(sheet.getCell('A1'), purple, 'FF000000', 40);
     sheet.mergeCells('G1:I3');
     sheet.getCell('G1').value = today;
@@ -124,7 +124,7 @@
   window.buildCashWorkbook = async function(state) {
     const ExcelJS = await excelLibrary();
     const wb = new ExcelJS.Workbook();
-    wb.creator = 'Hatwan Company';
+    wb.creator = 'Lawe Company';
     wb.calcProperties.fullCalcOnLoad = true;
     const today = dateValue(state.businessDate);
     const buy = exchangeSheet(wb, 'كرين', 'buy', state.records, today);
@@ -133,7 +133,7 @@
     const services = servicesSheet(wb, state.records, today);
     summary.mergeCells('A1:H1');
     summary.getRow(1).height = 56;
-    summary.getCell('A1').value = 'Hatwan Company';
+    summary.getCell('A1').value = 'Lawe Company';
     decorate(summary.getCell('A1'), navy, white, 40);
     summary.mergeCells('B2:G2');
     summary.getCell('B2').value = today;
@@ -179,3 +179,4 @@
     return wb;
   };
 })();
+

@@ -1,4 +1,4 @@
-# Hatwan cash desk
+# Lawe cash desk
 
 Kurdish cash-desk app with buy/sell transactions, services and formatted XLSX export.
 
@@ -41,3 +41,4 @@ Records remain in this browser's localStorage; there is no cloud database or cro
 `npm test` covers authentication, invalid/expired cookies, rate limiting, XLSX structure, literal notes and exports beyond the reference's row capacity. `npm run check` validates the deploy bundle. Browser QA covers midnight rollover, saving, locking, downloads and mobile overflow.
 
 Reference: [Cloudflare Worker asset routing](https://developers.cloudflare.com/workers/static-assets/routing/worker-script/).
+

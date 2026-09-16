@@ -1,4 +1,4 @@
-const STORAGE_KEY = "hatwan-cash-desk-v1";
+const STORAGE_KEY = "Lawe-cash-desk-v1";
 
 function currentDate() {
   const now = new Date();
@@ -360,7 +360,7 @@ async function exportExcel() {
   try {
     const workbook = await window.buildCashWorkbook(state);
     const bytes = await workbook.xlsx.writeBuffer();
-    download('hatwan-' + currentDate() + '.xlsx', bytes,
+    download('Lawe-' + currentDate() + '.xlsx', bytes,
       'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
   } catch (error) {
     alert("Excel export failed. Please retry. " + error.message);
@@ -411,6 +411,7 @@ document.addEventListener("click", (event) => {
 
 setTodayTime();
 renderAll();
+
 
 
 
