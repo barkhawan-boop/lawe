@@ -245,7 +245,7 @@ function renderAll() {
 
 function setKind(kind) {
   activeKind = kind;
-  function addLending(event) { event.preventDefault(); state.lendings = state.lendings || []; state.lendings.push({ id: crypto.randomUUID(), person: els.lendingPerson.value.trim(), phone: els.lendingPhone.value.trim(), usd: numberValue(els.lendingUsd.value), iqd: numberValue(els.lendingIqd.value), fib: numberValue(els.lendingFib.value), superQi: numberValue(els.lendingSuperQi.value), direction: els.lendingDirection.value }); saveState(); els.lendingForm.reset(); renderLendings(); }
+  async function addLending(event) { event.preventDefault(); const record={id:crypto.randomUUID(),person:els.lendingPerson.value.trim(),phone:els.lendingPhone.value.trim(),usd:numberValue(els.lendingUsd.value),iqd:numberValue(els.lendingIqd.value),fib:numberValue(els.lendingFib.value),superQi:numberValue(els.lendingSuperQi.value),direction:els.lendingDirection.value}; try { const res=await fetch("/api/lending",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(record)}); if(!res.ok) throw new Error(); } catch { state.lendings=state.lendings||[]; state.lendings.push(record); saveState(); } els.lendingForm.reset(); renderLendings(); }
 
 document.querySelectorAll(".segment").forEach((button) => {
     button.classList.toggle("is-active", button.dataset.kind === kind);
@@ -316,6 +316,7 @@ function saveRecord(event) {
   saveState();
   resetForm();
   renderAll();
+void (async()=>{try{const res=await fetch("/api/lending");if(res.ok){const data=await res.json();state.lendings=data.records||[];renderLendings();}}catch{}})();
 }
 
 function editRecord(id) {
@@ -349,6 +350,7 @@ function deleteRecord(id) {
   if (editingId === id) resetForm();
   saveState();
   renderAll();
+void (async()=>{try{const res=await fetch("/api/lending");if(res.ok){const data=await res.json();state.lendings=data.records||[];renderLendings();}}catch{}})();
 }
 
 function download(filename, content, type) {
@@ -376,7 +378,7 @@ async function exportExcel() {
   }
 }
 
-function addLending(event) { event.preventDefault(); state.lendings = state.lendings || []; state.lendings.push({ id: crypto.randomUUID(), person: els.lendingPerson.value.trim(), phone: els.lendingPhone.value.trim(), usd: numberValue(els.lendingUsd.value), iqd: numberValue(els.lendingIqd.value), fib: numberValue(els.lendingFib.value), superQi: numberValue(els.lendingSuperQi.value), direction: els.lendingDirection.value }); saveState(); els.lendingForm.reset(); renderLendings(); }
+async function addLending(event) { event.preventDefault(); const record={id:crypto.randomUUID(),person:els.lendingPerson.value.trim(),phone:els.lendingPhone.value.trim(),usd:numberValue(els.lendingUsd.value),iqd:numberValue(els.lendingIqd.value),fib:numberValue(els.lendingFib.value),superQi:numberValue(els.lendingSuperQi.value),direction:els.lendingDirection.value}; try { const res=await fetch("/api/lending",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(record)}); if(!res.ok) throw new Error(); } catch { state.lendings=state.lendings||[]; state.lendings.push(record); saveState(); } els.lendingForm.reset(); renderLendings(); }
 
 document.querySelectorAll(".segment").forEach((button) => {
   button.addEventListener("click", () => setKind(button.dataset.kind));
@@ -425,6 +427,8 @@ document.addEventListener("click", (event) => {
 
 setTodayTime();
 renderAll();
+void (async()=>{try{const res=await fetch("/api/lending");if(res.ok){const data=await res.json();state.lendings=data.records||[];renderLendings();}}catch{}})();
+
 
 
 
