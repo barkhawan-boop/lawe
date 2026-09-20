@@ -49,6 +49,7 @@ async function readSmallJson(request) {
 export default {
   async fetch(request, env) {
     const url = new URL(request.url);
+    if (url.pathname === '/api/lending' && await authenticated(request, env)) { if (!env.lawe_cash_desk) return respond('{"error":"Database not configured"}',503); if (request.method === 'GET') { const q=await env.lawe_cash_desk.prepare('SELECT id,person,phone,usd,iqd,fib,super_qi AS superQi,direction FROM lending_records ORDER BY created_at DESC').all(); return respond(JSON.stringify({records:q.results})); } if (request.method === 'POST') { const x=await request.json(); const id=crypto.randomUUID(); await env.lawe_cash_desk.prepare('INSERT INTO lending_records (id,person,phone,usd,iqd,fib,super_qi,direction) VALUES (?,?,?,?,?,?,?,?)').bind(id,x.person,x.phone||'',Number(x.usd)||0,Number(x.iqd)||0,Number(x.fib)||0,Number(x.superQi)||0,x.direction).run(); return respond(JSON.stringify({id}),201); } }
     if (url.pathname.startsWith('/api/')) {
       if (url.pathname === '/api/session' && request.method === 'GET') {
         return respond(JSON.stringify({ authenticated: await authenticated(request, env) }));

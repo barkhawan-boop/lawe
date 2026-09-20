@@ -24,5 +24,12 @@
   "observability": {
     "enabled": true,
     "head_sampling_rate": 1
-  }
+  },
+  "d1_databases": [
+    {
+      "binding": "lawe_cash_desk",
+      "database_name": "lawe-cash-desk",
+      "database_id": "b3da51e7-31ce-4325-847c-080f39f77fc8"
+    }
+  ]
 }
