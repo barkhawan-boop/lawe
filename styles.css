@@ -521,7 +521,7 @@ button:focus-visible { outline: 3px solid var(--blue-bright); outline-offset: 3p
 @media (max-width: 980px) { .table-header { flex-wrap: wrap; } }
 
 :root[data-theme='dark'] th { color: #000; }
-:root[data-theme='dark'] .row-button { color: #000; }
+:root[data-theme='dark'] .ghost-button, :root[data-theme='dark'] .row-button { color: #000; }
 :root[data-theme='dark'] .filter-row th { color: var(--ink); }
 
 .boss-only { display:none; }
