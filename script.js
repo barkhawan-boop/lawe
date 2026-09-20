@@ -235,7 +235,7 @@ function escapeHtml(value) {
   })[char]);
 }
 
-function renderLendings() { const filter = els.lendingListFilter?.value || ""; const rows = (state.lendings || []).filter(r => !filter || r.direction === filter); const all = state.lendings || []; els.lendingTotals.innerHTML = "<strong>هەموو:</strong> "+all.length+" | <strong class=green-text>سەوز:</strong> "+all.filter(r=>r.direction==="green").length+" | <strong class=red-text>سور:</strong> "+all.filter(r=>r.direction==="red").length; els.lendingBody.innerHTML = rows.length ? rows.map((r,i) => `<tr class="lending-${r.direction}"><td>${escapeHtml(r.person)}</td><td>${escapeHtml(r.phone)}</td><td data-ltr="true">${money(r.usd,"USD")}</td><td data-ltr="true">${money(r.iqd,"IQD")}</td><td data-ltr="true">${money(r.fib,"FIB")}</td><td data-ltr="true">${money(r.superQi,"SuperQI")}</td><td>${r.direction === "green" ? "سەوز" : "سور"}</td><td><button class="row-button" data-lending-delete="${r.id}">سڕینەوە</button></td></tr>`).join("") : `<tr><td colspan="8" class="empty-row">هیچ تۆمارێک نییە</td></tr>`; }
+function renderLendings() { const filter = els.lendingListFilter?.value || ""; const filters={}; document.querySelectorAll("[data-lending-filter]").forEach(x=>filters[x.dataset.lendingFilter]=x.value.trim().toLowerCase()); const rows = (state.lendings || []).filter(r => (!filter || r.direction === filter) && (!filters.person || String(r.person).toLowerCase().includes(filters.person)) && (!filters.phone || String(r.phone).toLowerCase().includes(filters.phone)) && (!filters.usd || Number(r.usd) >= Number(filters.usd)) && (!filters.iqd || Number(r.iqd) >= Number(filters.iqd)) && (!filters.fib || Number(r.fib) >= Number(filters.fib)) && (!filters.superQi || Number(r.superQi) >= Number(filters.superQi))); const all = state.lendings || []; els.lendingTotals.innerHTML = "<strong>هەموو:</strong> "+all.length+" | <strong class=green-text>سەوز:</strong> "+all.filter(r=>r.direction==="green").length+" | <strong class=red-text>سور:</strong> "+all.filter(r=>r.direction==="red").length; els.lendingBody.innerHTML = rows.length ? rows.map((r,i) => `<tr class="lending-${r.direction}"><td>${escapeHtml(r.person)}</td><td>${escapeHtml(r.phone)}</td><td data-ltr="true">${money(r.usd,"USD")}</td><td data-ltr="true">${money(r.iqd,"IQD")}</td><td data-ltr="true">${money(r.fib,"FIB")}</td><td data-ltr="true">${money(r.superQi,"SuperQI")}</td><td>${r.direction === "green" ? "سەوز" : "سور"}</td><td><button class="row-button" data-lending-delete="${r.id}">سڕینەوە</button></td></tr>`).join("") : `<tr><td colspan="8" class="empty-row">هیچ تۆمارێک نییە</td></tr>`; }
 
 function renderAll() {
   renderSummary();
@@ -386,7 +386,7 @@ document.querySelectorAll(".segment").forEach((button) => {
 
 [els.usdAmount, els.rate].forEach((input) => input.addEventListener("input", calculateIqd));
 els.entryForm.addEventListener("submit", saveRecord);
-els.lendingForm.addEventListener("submit", addLending); els.lendingListFilter?.addEventListener("change", renderLendings);
+els.lendingForm.addEventListener("submit", addLending); els.lendingListFilter?.addEventListener("change", renderLendings); document.querySelectorAll("[data-lending-filter]").forEach(x=>x.addEventListener("input",renderLendings));
 els.lendingDirection.addEventListener("change", () => els.lendingDirection.className = els.lendingDirection.value === "green" ? "direction-green" : "direction-red");
 els.lendingDirection.className = "direction-green";
 els.cancelEditBtn.addEventListener("click", resetForm);
@@ -428,6 +428,7 @@ document.addEventListener("click", (event) => {
 setTodayTime();
 renderAll();
 void (async()=>{try{const res=await fetch("/api/lending");if(res.ok){const data=await res.json();state.lendings=data.records||[];renderLendings();}}catch{}})();
+
 
 
 
