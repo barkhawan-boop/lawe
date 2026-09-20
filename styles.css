@@ -541,8 +541,8 @@ button:focus-visible { outline: 3px solid var(--blue-bright); outline-offset: 3p
 
 .table-wrap.is-collapsed { display:none; }
 
-.lending-green td { background:linear-gradient(105deg,rgba(18,125,75,.72),rgba(44,210,126,.22) 55%,rgba(4,65,52,.72)); color:#eafff0; border-bottom-color:#38c982; box-shadow:inset 0 0 24px rgba(58,220,130,.16); }
-.lending-red td { background:linear-gradient(105deg,rgba(157,34,60,.72),rgba(245,82,108,.22) 55%,rgba(70,18,52,.72)); color:#fff0f3; border-bottom-color:#f26b83; box-shadow:inset 0 0 24px rgba(255,83,117,.16); }
+.lending-green td { background:#198754; color:#fff; border-bottom-color:#146c43; box-shadow:none; }
+.lending-red td { background:#dc3545; color:#fff; border-bottom-color:#b02a37; box-shadow:none; }
 .lending-green td:first-child { border-inline-start:5px solid #42e28c; }
 .lending-red td:first-child { border-inline-start:5px solid #ff627b; }
 
