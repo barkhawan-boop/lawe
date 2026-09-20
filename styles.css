@@ -548,3 +548,7 @@ button:focus-visible { outline: 3px solid var(--blue-bright); outline-offset: 3p
 
 .lending-form select#lendingDirection { min-width:190px; width:190px; font-size:14px; padding-inline:8px; text-overflow:ellipsis; }
 .lending-form select#lendingDirection option { font-family:var(--font-kurdish); font-size:14px; }
+
+.lending-list-filter { min-width:100px; padding:8px; border-radius:6px; background:var(--surface); color:var(--ink); border:1px solid var(--line); }
+.lending-totals { padding:12px; border-top:1px solid var(--line); color:var(--muted); }
+.green-text { color:#39d784; } .red-text { color:#ff627b; }

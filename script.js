@@ -88,7 +88,7 @@ const els = {
   toDate: document.querySelector("#toDate"),
   editingHint: document.querySelector("#editingHint"),
   cancelEditBtn: document.querySelector("#cancelEditBtn"),
-  lendingForm: document.querySelector("#lendingForm"), lendingBody: document.querySelector("#lendingBody"), lendingDirection: document.querySelector("#lendingDirection"), lendingPerson: document.querySelector("#lendingPerson"), lendingPhone: document.querySelector("#lendingPhone"), lendingUsd: document.querySelector("#lendingUsd"), lendingIqd: document.querySelector("#lendingIqd"), lendingFib: document.querySelector("#lendingFib"), lendingSuperQi: document.querySelector("#lendingSuperQi")
+  lendingForm: document.querySelector("#lendingForm"), lendingBody: document.querySelector("#lendingBody"), lendingDirection: document.querySelector("#lendingDirection"), lendingListFilter: document.querySelector("#lendingListFilter"), lendingTotals: document.querySelector("#lendingTotals"), lendingPerson: document.querySelector("#lendingPerson"), lendingPhone: document.querySelector("#lendingPhone"), lendingUsd: document.querySelector("#lendingUsd"), lendingIqd: document.querySelector("#lendingIqd"), lendingFib: document.querySelector("#lendingFib"), lendingSuperQi: document.querySelector("#lendingSuperQi")
 };
 
 function loadState() {
@@ -235,7 +235,7 @@ function escapeHtml(value) {
   })[char]);
 }
 
-function renderLendings() { const rows = state.lendings || []; els.lendingBody.innerHTML = rows.length ? rows.map((r,i) => `<tr class="lending-${r.direction}"><td>${escapeHtml(r.person)}</td><td>${escapeHtml(r.phone)}</td><td data-ltr="true">${money(r.usd,"USD")}</td><td data-ltr="true">${money(r.iqd,"IQD")}</td><td data-ltr="true">${money(r.fib,"FIB")}</td><td data-ltr="true">${money(r.superQi,"SuperQI")}</td><td>${r.direction === "green" ? "سەوز" : "سور"}</td><td><button class="row-button" data-lending-delete="${r.id}">سڕینەوە</button></td></tr>`).join("") : `<tr><td colspan="8" class="empty-row">هیچ تۆمارێک نییە</td></tr>`; }
+function renderLendings() { const filter = els.lendingListFilter?.value || ""; const rows = (state.lendings || []).filter(r => !filter || r.direction === filter); const all = state.lendings || []; els.lendingTotals.innerHTML = "<strong>هەموو:</strong> "+all.length+" | <strong class=green-text>سەوز:</strong> "+all.filter(r=>r.direction==="green").length+" | <strong class=red-text>سور:</strong> "+all.filter(r=>r.direction==="red").length; els.lendingBody.innerHTML = rows.length ? rows.map((r,i) => `<tr class="lending-${r.direction}"><td>${escapeHtml(r.person)}</td><td>${escapeHtml(r.phone)}</td><td data-ltr="true">${money(r.usd,"USD")}</td><td data-ltr="true">${money(r.iqd,"IQD")}</td><td data-ltr="true">${money(r.fib,"FIB")}</td><td data-ltr="true">${money(r.superQi,"SuperQI")}</td><td>${r.direction === "green" ? "سەوز" : "سور"}</td><td><button class="row-button" data-lending-delete="${r.id}">سڕینەوە</button></td></tr>`).join("") : `<tr><td colspan="8" class="empty-row">هیچ تۆمارێک نییە</td></tr>`; }
 
 function renderAll() {
   renderSummary();
@@ -386,7 +386,7 @@ document.querySelectorAll(".segment").forEach((button) => {
 
 [els.usdAmount, els.rate].forEach((input) => input.addEventListener("input", calculateIqd));
 els.entryForm.addEventListener("submit", saveRecord);
-els.lendingForm.addEventListener("submit", addLending);
+els.lendingForm.addEventListener("submit", addLending); els.lendingListFilter?.addEventListener("change", renderLendings);
 els.lendingDirection.addEventListener("change", () => els.lendingDirection.className = els.lendingDirection.value === "green" ? "direction-green" : "direction-red");
 els.lendingDirection.className = "direction-green";
 els.cancelEditBtn.addEventListener("click", resetForm);
@@ -428,6 +428,7 @@ document.addEventListener("click", (event) => {
 setTodayTime();
 renderAll();
 void (async()=>{try{const res=await fetch("/api/lending");if(res.ok){const data=await res.json();state.lendings=data.records||[];renderLendings();}}catch{}})();
+
 
 
 
