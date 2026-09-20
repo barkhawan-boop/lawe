@@ -395,6 +395,7 @@ els.maxAmount.addEventListener("input", renderTables);
 els.fromDate.addEventListener("input", renderTables);
 els.toDate.addEventListener("input", renderTables);
 document.querySelector("#exportExcelBtn").addEventListener("click", exportExcel);
+const toggleExchangeBtn=document.querySelector("#toggleExchangeBtn"); const exchangeTable=document.querySelector("#exchangeBody")?.closest(".table-wrap"); exchangeTable?.classList.add("is-collapsed"); toggleExchangeBtn?.addEventListener("click",()=>{const collapsed=exchangeTable.classList.toggle("is-collapsed"); const open=!collapsed; toggleExchangeBtn.textContent=open?"شاردنەوەی تۆمارەکان":"پیشاندانی تۆمارەکان";});
 
 function syncCalendarDate() {
   const nextDate = currentDate();
@@ -424,6 +425,8 @@ document.addEventListener("click", (event) => {
 
 setTodayTime();
 renderAll();
+
+
 
 
 

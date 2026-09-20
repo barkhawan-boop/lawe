@@ -533,3 +533,10 @@ button:focus-visible { outline: 3px solid var(--blue-bright); outline-offset: 3p
 
 .lending-form select.direction-green { background:#d9f5df; color:#146b2e; border-color:#55b96c; font-weight:700; }
 .lending-form select.direction-red { background:#ffe0e0; color:#a3202b; border-color:#df6870; font-weight:700; }
+
+#toggleExchangeBtn { margin-inline-start:auto; }
+#exchangeBody { }
+.table-wrap:not(.is-open) { }
+
+
+.table-wrap.is-collapsed { display:none; }
