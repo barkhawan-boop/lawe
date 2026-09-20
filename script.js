@@ -88,7 +88,7 @@ const els = {
   toDate: document.querySelector("#toDate"),
   editingHint: document.querySelector("#editingHint"),
   cancelEditBtn: document.querySelector("#cancelEditBtn"),
-  lendingForm: document.querySelector("#lendingForm"), lendingBody: document.querySelector("#lendingBody"), lendingDirection: document.querySelector("#lendingDirection")
+  lendingForm: document.querySelector("#lendingForm"), lendingBody: document.querySelector("#lendingBody"), lendingDirection: document.querySelector("#lendingDirection"), lendingPerson: document.querySelector("#lendingPerson"), lendingPhone: document.querySelector("#lendingPhone"), lendingUsd: document.querySelector("#lendingUsd"), lendingIqd: document.querySelector("#lendingIqd"), lendingFib: document.querySelector("#lendingFib"), lendingSuperQi: document.querySelector("#lendingSuperQi")
 };
 
 function loadState() {
@@ -428,6 +428,7 @@ document.addEventListener("click", (event) => {
 setTodayTime();
 renderAll();
 void (async()=>{try{const res=await fetch("/api/lending");if(res.ok){const data=await res.json();state.lendings=data.records||[];renderLendings();}}catch{}})();
+
 
 
 
