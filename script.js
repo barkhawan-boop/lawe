@@ -245,7 +245,7 @@ function renderAll() {
 
 function setKind(kind) {
   activeKind = kind;
-  async function addLending(event) { event.preventDefault(); const record={id:crypto.randomUUID(),person:els.lendingPerson.value.trim(),phone:els.lendingPhone.value.trim(),usd:numberValue(els.lendingUsd.value),iqd:numberValue(els.lendingIqd.value),fib:numberValue(els.lendingFib.value),superQi:numberValue(els.lendingSuperQi.value),direction:els.lendingDirection.value}; try { const res=await fetch("/api/lending",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(record)}); if(!res.ok) throw new Error(); state.lendings=state.lendings||[]; state.lendings.push(record); } catch { state.lendings=state.lendings||[]; state.lendings.push(record); saveState(); } els.lendingForm.reset(); renderLendings(); }
+  async function addLending(event) { event.preventDefault(); const record={person:els.lendingPerson.value.trim(),phone:els.lendingPhone.value.trim(),usd:numberValue(els.lendingUsd.value),iqd:numberValue(els.lendingIqd.value),fib:numberValue(els.lendingFib.value),superQi:numberValue(els.lendingSuperQi.value),direction:els.lendingDirection.value}; const button=els.lendingForm.querySelector("button[type=submit]"); if(button) button.disabled=true; try { const res=await fetch("/api/lending",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(record)}); if(!res.ok) throw new Error(); const saved=await res.json(); const list=await fetch("/api/lending"); if(!list.ok) throw new Error(); const data=await list.json(); state.lendings=data.records||[]; els.lendingForm.reset(); renderLendings(); } catch { alert("تۆمارەکە لە بنکەدراوە پاشەکەوت نەکرا"); } finally { if(button) button.disabled=false; } }
 
 document.querySelectorAll(".segment").forEach((button) => {
     button.classList.toggle("is-active", button.dataset.kind === kind);
@@ -378,7 +378,7 @@ async function exportExcel() {
   }
 }
 
-async function addLending(event) { event.preventDefault(); const record={id:crypto.randomUUID(),person:els.lendingPerson.value.trim(),phone:els.lendingPhone.value.trim(),usd:numberValue(els.lendingUsd.value),iqd:numberValue(els.lendingIqd.value),fib:numberValue(els.lendingFib.value),superQi:numberValue(els.lendingSuperQi.value),direction:els.lendingDirection.value}; try { const res=await fetch("/api/lending",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(record)}); if(!res.ok) throw new Error(); state.lendings=state.lendings||[]; state.lendings.push(record); } catch { state.lendings=state.lendings||[]; state.lendings.push(record); saveState(); } els.lendingForm.reset(); renderLendings(); }
+async function addLending(event) { event.preventDefault(); const record={person:els.lendingPerson.value.trim(),phone:els.lendingPhone.value.trim(),usd:numberValue(els.lendingUsd.value),iqd:numberValue(els.lendingIqd.value),fib:numberValue(els.lendingFib.value),superQi:numberValue(els.lendingSuperQi.value),direction:els.lendingDirection.value}; const button=els.lendingForm.querySelector("button[type=submit]"); if(button) button.disabled=true; try { const res=await fetch("/api/lending",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(record)}); if(!res.ok) throw new Error(); const saved=await res.json(); const list=await fetch("/api/lending"); if(!list.ok) throw new Error(); const data=await list.json(); state.lendings=data.records||[]; els.lendingForm.reset(); renderLendings(); } catch { alert("تۆمارەکە لە بنکەدراوە پاشەکەوت نەکرا"); } finally { if(button) button.disabled=false; } }
 
 document.querySelectorAll(".segment").forEach((button) => {
   button.addEventListener("click", () => setKind(button.dataset.kind));
@@ -422,7 +422,7 @@ document.addEventListener("click", async (event) => {
   const deleteButton = event.target.closest("[data-delete]");
   if (editButton) editRecord(editButton.dataset.edit);
   if (deleteButton) deleteRecord(deleteButton.dataset.delete);
-  const lendingDelete = event.target.closest("[data-lending-delete]"); if (lendingDelete) { const id = lendingDelete.dataset.lendingDelete; lendingDelete.disabled = true; try { const res = await fetch(`/api/lending?id=${encodeURIComponent(id)}`, { method: "DELETE" }); if (!res.ok) throw new Error("Delete failed"); state.lendings = (state.lendings || []).filter(r => r.id !== id); renderLendings(); } catch { lendingDelete.disabled = false; alert("نەتوانرا تۆمارەکە بسڕدرێتەوە"); } }
+  const lendingDelete = event.target.closest("[data-lending-delete]"); if (lendingDelete) { const id = lendingDelete.dataset.lendingDelete; lendingDelete.disabled = true; try { const res = await fetch(`/api/lending?id=${encodeURIComponent(id)}`, { method: "DELETE" }); if (!res.ok) throw new Error("Delete failed"); const list = await fetch("/api/lending"); if (!list.ok) throw new Error("Refresh failed"); const data = await list.json(); state.lendings = data.records || []; renderLendings(); } catch { lendingDelete.disabled = false; alert("نەتوانرا تۆمارەکە بسڕدرێتەوە"); } }
 });
 
 setTodayTime();
