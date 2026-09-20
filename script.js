@@ -46,6 +46,7 @@ const initialState = {
   businessDate: todayDate,
   openingUsd: 8424,
   openingIqd: 42192269,
+  lendings: [],
   records: importedExchangeRows.map((record) => ({
     id: crypto.randomUUID(),
     date: todayDate,
@@ -86,7 +87,8 @@ const els = {
   fromDate: document.querySelector("#fromDate"),
   toDate: document.querySelector("#toDate"),
   editingHint: document.querySelector("#editingHint"),
-  cancelEditBtn: document.querySelector("#cancelEditBtn")
+  cancelEditBtn: document.querySelector("#cancelEditBtn"),
+  lendingForm: document.querySelector("#lendingForm"), lendingBody: document.querySelector("#lendingBody"), lendingDirection: document.querySelector("#lendingDirection")
 };
 
 function loadState() {
@@ -233,14 +235,19 @@ function escapeHtml(value) {
   })[char]);
 }
 
+function renderLendings() { const rows = state.lendings || []; els.lendingBody.innerHTML = rows.length ? rows.map((r,i) => `<tr class="lending-${r.direction}"><td>${escapeHtml(r.person)}</td><td>${escapeHtml(r.phone)}</td><td data-ltr="true">${money(r.usd,"USD")}</td><td data-ltr="true">${money(r.iqd,"IQD")}</td><td data-ltr="true">${money(r.fib,"FIB")}</td><td data-ltr="true">${money(r.superQi,"SuperQI")}</td><td>${r.direction === "green" ? "سەوز" : "سور"}</td><td><button class="row-button" data-lending-delete="${r.id}">سڕینەوە</button></td></tr>`).join("") : `<tr><td colspan="8" class="empty-row">هیچ تۆمارێک نییە</td></tr>`; }
+
 function renderAll() {
   renderSummary();
   renderTables();
+  renderLendings();
 }
 
 function setKind(kind) {
   activeKind = kind;
-  document.querySelectorAll(".segment").forEach((button) => {
+  function addLending(event) { event.preventDefault(); state.lendings = state.lendings || []; state.lendings.push({ id: crypto.randomUUID(), person: els.lendingPerson.value.trim(), phone: els.lendingPhone.value.trim(), usd: numberValue(els.lendingUsd.value), iqd: numberValue(els.lendingIqd.value), fib: numberValue(els.lendingFib.value), superQi: numberValue(els.lendingSuperQi.value), direction: els.lendingDirection.value }); saveState(); els.lendingForm.reset(); renderLendings(); }
+
+document.querySelectorAll(".segment").forEach((button) => {
     button.classList.toggle("is-active", button.dataset.kind === kind);
   });
   els.exchangeFields.classList.toggle("is-hidden", kind === "service");
@@ -369,12 +376,17 @@ async function exportExcel() {
   }
 }
 
+function addLending(event) { event.preventDefault(); state.lendings = state.lendings || []; state.lendings.push({ id: crypto.randomUUID(), person: els.lendingPerson.value.trim(), phone: els.lendingPhone.value.trim(), usd: numberValue(els.lendingUsd.value), iqd: numberValue(els.lendingIqd.value), fib: numberValue(els.lendingFib.value), superQi: numberValue(els.lendingSuperQi.value), direction: els.lendingDirection.value }); saveState(); els.lendingForm.reset(); renderLendings(); }
+
 document.querySelectorAll(".segment").forEach((button) => {
   button.addEventListener("click", () => setKind(button.dataset.kind));
 });
 
 [els.usdAmount, els.rate].forEach((input) => input.addEventListener("input", calculateIqd));
 els.entryForm.addEventListener("submit", saveRecord);
+els.lendingForm.addEventListener("submit", addLending);
+els.lendingDirection.addEventListener("change", () => els.lendingDirection.className = els.lendingDirection.value === "green" ? "direction-green" : "direction-red");
+els.lendingDirection.className = "direction-green";
 els.cancelEditBtn.addEventListener("click", resetForm);
 if (els.searchInput) els.searchInput.addEventListener("input", renderTables);
 els.kindFilter.addEventListener("input", renderTables);
@@ -407,10 +419,15 @@ document.addEventListener("click", (event) => {
   const deleteButton = event.target.closest("[data-delete]");
   if (editButton) editRecord(editButton.dataset.edit);
   if (deleteButton) deleteRecord(deleteButton.dataset.delete);
+  const lendingDelete = event.target.closest("[data-lending-delete]"); if (lendingDelete) { state.lendings = (state.lendings || []).filter(r => r.id !== lendingDelete.dataset.lendingDelete); saveState(); renderLendings(); }
 });
 
 setTodayTime();
 renderAll();
+
+
+
+
 
 
 
