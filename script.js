@@ -417,12 +417,12 @@ document.addEventListener("visibilitychange", () => {
   if (!document.hidden) syncCalendarDate();
 });
 
-document.addEventListener("click", (event) => {
+document.addEventListener("click", async (event) => {
   const editButton = event.target.closest("[data-edit]");
   const deleteButton = event.target.closest("[data-delete]");
   if (editButton) editRecord(editButton.dataset.edit);
   if (deleteButton) deleteRecord(deleteButton.dataset.delete);
-  const lendingDelete = event.target.closest("[data-lending-delete]"); if (lendingDelete) { state.lendings = (state.lendings || []).filter(r => r.id !== lendingDelete.dataset.lendingDelete); saveState(); renderLendings(); }
+  const lendingDelete = event.target.closest("[data-lending-delete]"); if (lendingDelete) { const id = lendingDelete.dataset.lendingDelete; lendingDelete.disabled = true; try { const res = await fetch(`/api/lending?id=${encodeURIComponent(id)}`, { method: "DELETE" }); if (!res.ok) throw new Error("Delete failed"); state.lendings = (state.lendings || []).filter(r => r.id !== id); renderLendings(); } catch { lendingDelete.disabled = false; alert("نەتوانرا تۆمارەکە بسڕدرێتەوە"); } }
 });
 
 setTodayTime();
