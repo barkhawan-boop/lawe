@@ -541,10 +541,10 @@ button:focus-visible { outline: 3px solid var(--blue-bright); outline-offset: 3p
 
 .table-wrap.is-collapsed { display:none; }
 
-.lending-green td { background:#198754; color:#fff; border-bottom-color:#146c43; box-shadow:none; }
-.lending-red td { background:#dc3545; color:#fff; border-bottom-color:#b02a37; box-shadow:none; }
-.lending-green td:first-child { border-inline-start:5px solid #42e28c; }
-.lending-red td:first-child { border-inline-start:5px solid #ff627b; }
+.lending-green td { background:transparent; color:#198754; border-bottom-color:var(--line); box-shadow:none; }
+.lending-red td { background:transparent; color:#dc3545; border-bottom-color:var(--line); box-shadow:none; }
+.lending-green td:first-child { border-inline-start:0; }
+.lending-red td:first-child { border-inline-start:0; }
 
 .lending-form select#lendingDirection { min-width:190px; width:190px; font-size:14px; padding-inline:8px; text-overflow:ellipsis; }
 .lending-form select#lendingDirection option { font-family:var(--font-kurdish); font-size:14px; }
