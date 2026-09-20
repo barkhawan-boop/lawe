@@ -541,8 +541,8 @@ button:focus-visible { outline: 3px solid var(--blue-bright); outline-offset: 3p
 
 .table-wrap.is-collapsed { display:none; }
 
-.lending-green td { background:transparent; color:#198754; border-bottom-color:var(--line); box-shadow:none; }
-.lending-red td { background:transparent; color:#dc3545; border-bottom-color:var(--line); box-shadow:none; }
+.lending-green td { background:#fff !important; color:#198754 !important; border-bottom-color:#d9e2ec; box-shadow:none; }
+.lending-red td { background:#fff !important; color:#dc3545 !important; border-bottom-color:#d9e2ec; box-shadow:none; }
 .lending-green td:first-child { border-inline-start:0; }
 .lending-red td:first-child { border-inline-start:0; }
 
