@@ -501,6 +501,7 @@ button:focus-visible { outline: 3px solid var(--blue-bright); outline-offset: 3p
 
 .topbar .top-actions { inset-inline-start: auto; inset-inline-end: clamp(18px, 4vw, 48px); }
 #themeToggle { width: 44px; min-width: 44px; padding: 8px; font-size: 22px; line-height: 1; }
+.user-role-label { color:#fff; font-weight:700; padding:8px 12px; border:1px solid rgba(245,200,76,.5); border-radius:6px; }
 
 
 

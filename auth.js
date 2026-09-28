@@ -20,6 +20,8 @@
   async function unlock(user) {
     const bossMode = user?.role === 'boss';
     document.body.classList.toggle('boss-mode', bossMode);
+    const roleLabel = document.querySelector('#userRoleLabel');
+    if (roleLabel) roleLabel.textContent = bossMode ? 'Manager page' : (user?.name || 'Cashier');
     if (!loaded) {
       await loadScript('export.js');
       await loadScript('script.js');
