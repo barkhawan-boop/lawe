@@ -204,7 +204,7 @@ function renderTables() {
       <td data-ltr="true">${record.date || state.businessDate || ""}</td>
       <td data-ltr="true">${record.time || ""}</td>
       <td>${escapeHtml(record.customer || "")}</td>
-      <td>${escapeHtml(record.cashierName || "")}</td>
+      <td>${escapeHtml(record.cashierName || "Manager")}</td>
       <td>${escapeHtml(record.reference || "")}</td>
       <td>${rowActions(record)}</td>
     </tr>
@@ -220,7 +220,7 @@ function renderTables() {
       <td data-ltr="true">${record.date || state.businessDate || ""}</td>
       <td data-ltr="true">${record.time || ""}</td>
       <td>${escapeHtml(record.customer || "")}</td>
-      <td>${escapeHtml(record.cashierName || "")}</td>
+      <td>${escapeHtml(record.cashierName || "Manager")}</td>
       <td>${escapeHtml(record.reference || "")}</td>
       <td>${rowActions(record)}</td>
     </tr>
