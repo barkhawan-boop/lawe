@@ -186,7 +186,8 @@ function renderTables() {
   const minAmount = Number(els.minAmount.value) || 0;
   const maxAmount = Number(els.maxAmount.value) || Infinity;
   const fromDate = els.fromDate.value;
-  const toDate = els.toDate.value;\n  const cashierFilter = (document.querySelector(".cashierFilter")?.value || "").trim().toLowerCase();
+  const toDate = els.toDate.value;
+  const cashierFilter = (document.querySelector(".cashierFilter")?.value || "").trim().toLowerCase();
   const exchangeRecords = state.records.filter((record) => ["buy", "sell"].includes(record.kind));
   const serviceRecords = state.records.filter((record) => record.kind === "service");
   const visibleExchange = exchangeRecords.filter((record) => {
