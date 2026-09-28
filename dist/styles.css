@@ -554,5 +554,9 @@ button:focus-visible { outline: 3px solid var(--blue-bright); outline-offset: 3p
 .green-text { color:#39d784; } .red-text { color:#ff627b; }
 
 .lending-list-filter { font-family:var(--font-kurdish); font-weight:700; }
+.cashier-management { margin: 14px auto; max-width: 1440px; }
+.cashier-list { display:grid; gap:8px; margin-top:12px; }
+.cashier-row { display:flex; align-items:center; gap:14px; padding:8px 12px; border-bottom:1px solid var(--line); }
+.cashier-row span { color:var(--muted); margin-inline-start:auto; }
 
 .table-wrap th input, .table-wrap th select { width:100%; min-width:70px; box-sizing:border-box; font-family:var(--font-kurdish); }

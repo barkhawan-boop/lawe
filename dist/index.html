@@ -1,0 +1,242 @@
+<!doctype html>
+<html lang="ku" dir="rtl">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Lawe Company - Daily Cash Desk</title>
+    <link rel="stylesheet" href="styles.css">
+  </head>
+  <body>
+    <section id="pinGate" class="pin-gate" aria-labelledby="pinTitle">
+      <form id="pinForm" class="pin-card">
+        <p class="eyebrow">Lawe Company</p>
+        <h1 id="pinTitle">خشتەی رۆژانەی کاشێر</h1>
+        <div class="field">
+          <label for="pinInput">PIN</label>
+          <input id="pinInput" type="password" inputmode="numeric" pattern="[0-9]{4}" minlength="4" maxlength="4" autocomplete="current-password" required aria-describedby="pinError">
+        </div>
+        <p id="pinError" role="alert" aria-live="polite"></p>
+        <button class="primary-button" type="submit">چوونەژوورەوە</button>
+      </form>
+    </section>
+    <div id="app" hidden>
+    <header class="topbar">
+      <div>
+        <p class="eyebrow">Lawe Company</p>
+        <h1>خشتەی رۆژانەی کاشێر</h1>
+      </div>
+      <div class="top-actions" dir="ltr">
+        <button id="themeToggle" class="command-button" type="button">☾ Dark mode</button>        <button id="lockBtn" class="command-button" type="button">داخستن</button>
+        <button id="exportExcelBtn" class="command-button cashier-only" type="button">Export Excel</button>
+      </div>
+    </header>
+
+    <section class="tables boss-only cashier-management" id="cashierManagement">
+      <div class="table-header"><h2>بەڕێوەبردنی کاشێرەکان</h2></div>
+      <form id="cashierForm" class="lending-form"><input id="cashierName" required placeholder="ناوی کاشێر"><input id="cashierPin" required inputmode="numeric" pattern="[0-9]{4}" maxlength="4" placeholder="PIN ـی ٤ ژمارەیی"><button class="primary-button" type="submit">زیادکردن</button></form>
+      <div id="cashierList" class="cashier-list"></div>
+    </section>
+
+    <main class="shell">
+      <section class="summary-grid cashier-only" aria-label="Daily summary">
+        <article class="metric">
+          <span>دۆلاری بەردەست</span>
+          <strong id="usdBalance">$0</strong>
+        </article>
+        <article class="metric">
+          <span>دیناری بەردەست</span>
+          <strong id="iqdBalance">0 IQD</strong>
+        </article>
+        <article class="metric">
+          <span>قازانجی خزمەتگوزاری</span>
+          <strong id="serviceProfit">0 IQD</strong>
+        </article>
+        <article class="metric">
+          <span>کۆی مامەڵەکان</span>
+          <strong id="transactionCount">0</strong>
+        </article>
+      </section>
+
+<section class="workspace cashier-only">
+        <form id="entryForm" class="entry-panel" autocomplete="off">
+          <div class="panel-title">
+            <h2>تۆمارکردنی مامەڵە</h2>
+            <span id="editingHint">نوێ</span>
+          </div>
+
+          <div class="segmented" role="tablist" aria-label="Transaction type">
+            <button class="segment is-active" type="button" data-kind="buy">کڕین</button>
+            <button class="segment" type="button" data-kind="sell">فرۆشتن</button>
+            <button class="segment" type="button" data-kind="service">خزمەتگوزاری</button>
+          </div>
+
+          <div id="exchangeFields" class="form-grid">
+            <div class="field">
+              <label for="usdAmount">بڕی دۆلار</label>
+              <input id="usdAmount" type="number" min="0" step="0.01" inputmode="decimal">
+            </div>
+            <div class="field">
+              <label for="rate">نرخ</label>
+              <input id="rate" type="number" min="0" step="0.01" inputmode="decimal">
+            </div>
+            <div class="field readonly">
+              <label for="iqdAmount">بڕی دینار</label>
+              <input id="iqdAmount" type="text" readonly>
+            </div>
+          </div>
+
+          <div id="serviceFields" class="form-grid is-hidden">
+            <div class="field">
+              <label for="serviceName">جۆری خزمەتگوزاری</label>
+              <select id="serviceName">
+                <option>FIB</option>
+                <option>Qi Card</option>
+                <option>FastPay</option>
+                <option>NassWallet</option>
+                <option>AsiaPay</option>
+                <option>Other</option>
+              </select>
+            </div>
+            <div class="field">
+              <label for="serviceDirection">کردار</label>
+              <select id="serviceDirection">
+                <option value="deposit">Deposit / پارەدانان</option>
+                <option value="withdraw">Withdraw / پارەوەرگرتن</option>
+              </select>
+            </div>
+            <div class="field">
+              <label for="serviceAmount">بڕی پارە</label>
+              <input id="serviceAmount" type="number" min="0" step="250" inputmode="decimal">
+            </div>
+            <div class="field">
+              <label for="serviceFee">کرێ / قازانج</label>
+              <input id="serviceFee" type="number" min="0" step="250" inputmode="decimal">
+            </div>
+          </div>
+
+          <div class="form-grid">
+            <div class="field">
+              <label for="actionDate">ڕێکەوتی مامەڵە</label>
+              <input id="actionDate" type="date">
+            </div>
+            <div class="field">
+              <label for="customer">ناوی کڕیار <span class="optional-label">ئارەزوومەندانە</span></label>
+              <input id="customer" type="text" autocomplete="off" placeholder="دەتوانیت بەتاڵی بهێڵیت">
+            </div>
+            <div class="field">
+              <label for="reference">ژمارە / تێبینی <span class="optional-label">ئارەزوومەندانە</span></label>
+              <input id="reference" type="text" autocomplete="off" placeholder="دەتوانیت بەتاڵی بهێڵیت">
+            </div>
+            <div class="field">
+              <label for="time">کات</label>
+              <input id="time" type="time">
+            </div>
+          </div>
+
+          <div class="form-actions" dir="ltr">
+            <button id="cancelEditBtn" class="ghost-button is-hidden" type="button">Cancel</button>
+            <button class="primary-button" type="submit">Save Record</button>
+          </div>
+        </form>
+
+        <aside class="report-panel">
+          <h2>خشتەی گشتی</h2>
+          <dl class="report-list">
+            <div><dt>کڕینی گشتی</dt><dd id="totalBought">$0</dd></div>
+            <div><dt>دیناری پێدراو</dt><dd id="totalIqdPaid">0 IQD</dd></div>
+            <div><dt>فرۆشتنی گشتی</dt><dd id="totalSold">$0</dd></div>
+            <div><dt>دیناری وەرگیراو</dt><dd id="totalIqdReceived">0 IQD</dd></div>
+            <div><dt>خزمەتگوزاری</dt><dd id="totalServiceVolume">0 IQD</dd></div>
+          </dl>
+        </aside>
+      </section>
+
+      <section class="tables">
+        <div class="table-header">
+          <h2>کڕین و فرۆشتنی دۆلار</h2><button id="toggleExchangeBtn" class="ghost-button" type="button">پیشاندانی تۆمارەکان</button>
+          
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr class="filter-row"><th colspan="10"><div class="table-filters"><select id="kindFilter"><option value="">هەموو جۆرەکان</option><option value="buy">کڕین</option><option value="sell">فرۆشتن</option></select><input id="minAmount" type="number" min="0" placeholder="کەمترین بڕ"><input id="maxAmount" type="number" min="0" placeholder="زۆرترین بڕ"><label>لە <input id="fromDate" type="date"></label><label>تا <input id="toDate" type="date"></label></div></th></tr>
+              <tr>
+                <th>ژ</th>
+                <th>جۆر</th>
+                <th>دۆلار</th>
+                <th>نرخ</th>
+                <th>دینار</th>
+                <th>ڕێکەوت</th>
+                <th>کات</th>
+                <th>کڕیار</th>
+                <th>تێبینی</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody id="exchangeBody"></tbody>
+          </table>
+        </div>
+      </section>
+
+      <section class="tables">
+        <div class="table-header">
+          <h2>FIB, Qi Card, FastPay</h2>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr class="filter-row"><th colspan="10"><div class="table-filters"><select id="kindFilter"><option value="">هەموو جۆرەکان</option><option value="buy">کڕین</option><option value="sell">فرۆشتن</option></select><input id="minAmount" type="number" min="0" placeholder="کەمترین بڕ"><input id="maxAmount" type="number" min="0" placeholder="زۆرترین بڕ"><label>لە <input id="fromDate" type="date"></label><label>تا <input id="toDate" type="date"></label></div></th></tr>
+              <tr>
+                <th>ژ</th>
+                <th>خزمەتگوزاری</th>
+                <th>کردار</th>
+                <th>بڕ</th>
+                <th>کرێ</th>
+                <th>ڕێکەوت</th>
+                <th>کات</th>
+                <th>کڕیار</th>
+                <th>تێبینی</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody id="serviceBody"></tbody>
+          </table>
+        </div>
+      </section>
+    </main><section class="tables boss-only" id="lendingRegister"><div class="table-header"><h2>تۆماری قەرز و وەرگرتن</h2><form id="lendingForm" class="lending-form"><input id="lendingPerson" required placeholder="ناوی کەس"><input id="lendingPhone" placeholder="ژمارەی مۆبایل"><input id="lendingUsd" type="number" min="0" step="0.01" placeholder="USD"><input id="lendingIqd" type="number" min="0" placeholder="IQD"><input id="lendingFib" type="number" min="0" placeholder="FIB"><input id="lendingSuperQi" type="number" min="0" placeholder="SuperQI"><select id="lendingDirection"><option value="green">لەسەر ئەوانە</option><option value="red">لەسەر ئێمەیە</option></select><button class="primary-button" type="submit">زیادکردن</button></form></div><div class="table-wrap"><table><thead><tr><th><input data-lending-filter="person" placeholder="ناو"></th><th><input data-lending-filter="phone" placeholder="مۆبایل"></th><th><input data-lending-filter="cashierName" placeholder="کاشێر"></th><th><input data-lending-filter="usd" type="number" placeholder="USD"></th><th><input data-lending-filter="iqd" type="number" placeholder="IQD"></th><th><input data-lending-filter="fib" type="number" placeholder="FIB"></th><th><input data-lending-filter="superQi" type="number" placeholder="SuperQI"></th><th><select id="lendingListFilter" class="lending-list-filter"><option value="">جۆر</option><option value="green">سەوز</option><option value="red">سور</option></select></th><th></th></tr></thead><tbody id="lendingBody"></tbody></table></div><div id="lendingTotals" class="lending-totals"></div></section>
+    <footer class="site-footer" aria-label="MyApps attribution">
+      <div class="footer-brand">
+        <img src="assets/myapps-logo.jpg" alt="MyApps logo">
+        <div>
+          <strong>Powered by @MyApps</strong>
+          <span>All rights reserved 2026</span>
+          <a href="https://www.facebook.com/profile.php?id=61592232446046" target="_blank" rel="noreferrer">Facebook: MyApps</a>
+        </div>
+      </div>
+    </footer>
+    </div>
+    <script src="theme.js"></script>    <script src="auth-mode.js"></script>
+    <script src="auth.js"></script>
+  </body>
+</html>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

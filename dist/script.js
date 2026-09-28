@@ -235,7 +235,7 @@ function escapeHtml(value) {
   })[char]);
 }
 
-function renderLendings() { if (els.lendingListFilter && !els.lendingListFilter.dataset.userChanged) els.lendingListFilter.value = ""; const filter = els.lendingListFilter?.value || ""; const filters={}; document.querySelectorAll("[data-lending-filter]").forEach(x=>filters[x.dataset.lendingFilter]=x.value.trim().toLowerCase()); const rows = (state.lendings || []).filter(r => (!filter || r.direction === filter) && (!filters.person || String(r.person).toLowerCase().includes(filters.person)) && (!filters.phone || String(r.phone).toLowerCase().includes(filters.phone)) && (!filters.usd || Number(r.usd) >= Number(filters.usd)) && (!filters.iqd || Number(r.iqd) >= Number(filters.iqd)) && (!filters.fib || Number(r.fib) >= Number(filters.fib)) && (!filters.superQi || Number(r.superQi) >= Number(filters.superQi))); const all = state.lendings || []; els.lendingTotals.innerHTML = "<strong>هەموو:</strong> "+all.length+" | <strong class=green-text>سەوز:</strong> "+all.filter(r=>r.direction==="green").length+" | <strong class=red-text>سور:</strong> "+all.filter(r=>r.direction==="red").length; els.lendingBody.innerHTML = rows.length ? rows.map((r,i) => `<tr class="lending-${r.direction}"><td>${escapeHtml(r.person)}</td><td>${escapeHtml(r.phone)}</td><td data-ltr="true">${money(r.usd,"USD")}</td><td data-ltr="true">${money(r.iqd,"IQD")}</td><td data-ltr="true">${money(r.fib,"FIB")}</td><td data-ltr="true">${money(r.superQi,"SuperQI")}</td><td>${r.direction === "green" ? "سەوز" : "سور"}</td><td><button class="row-button" data-lending-delete="${r.id}">سڕینەوە</button></td></tr>`).join("") : `<tr><td colspan="8" class="empty-row">هیچ تۆمارێک نییە</td></tr>`; }
+function renderLendings() { if (els.lendingListFilter && !els.lendingListFilter.dataset.userChanged) els.lendingListFilter.value = ""; const filter = els.lendingListFilter?.value || ""; const filters={}; document.querySelectorAll("[data-lending-filter]").forEach(x=>filters[x.dataset.lendingFilter]=x.value.trim().toLowerCase()); const rows = (state.lendings || []).filter(r => (!filter || r.direction === filter) && (!filters.person || String(r.person).toLowerCase().includes(filters.person)) && (!filters.phone || String(r.phone).toLowerCase().includes(filters.phone)) && (!filters.cashierName || String(r.cashierName || "").toLowerCase().includes(filters.cashierName)) && (!filters.usd || Number(r.usd) >= Number(filters.usd)) && (!filters.iqd || Number(r.iqd) >= Number(filters.iqd)) && (!filters.fib || Number(r.fib) >= Number(filters.fib)) && (!filters.superQi || Number(r.superQi) >= Number(filters.superQi))); const all = state.lendings || []; els.lendingTotals.innerHTML = "<strong>هەموو:</strong> "+all.length+" | <strong class=green-text>سەوز:</strong> "+all.filter(r=>r.direction==="green").length+" | <strong class=red-text>سور:</strong> "+all.filter(r=>r.direction==="red").length; els.lendingBody.innerHTML = rows.length ? rows.map((r,i) => `<tr class="lending-${r.direction}"><td>${escapeHtml(r.person)}</td><td>${escapeHtml(r.phone)}</td><td>${escapeHtml(r.cashierName || "")}</td><td data-ltr="true">${money(r.usd,"USD")}</td><td data-ltr="true">${money(r.iqd,"IQD")}</td><td data-ltr="true">${money(r.fib,"FIB")}</td><td data-ltr="true">${money(r.superQi,"SuperQI")}</td><td>${r.direction === "green" ? "سەوز" : "سور"}</td><td><button class="row-button" data-lending-delete="${r.id}">سڕینەوە</button></td></tr>`).join("") : `<tr><td colspan="9" class="empty-row">هیچ تۆمارێک نییە</td></tr>`; }
 
 function renderAll() {
   renderSummary();
@@ -417,17 +417,25 @@ document.addEventListener("visibilitychange", () => {
   if (!document.hidden) syncCalendarDate();
 });
 
+async function loadCashiers() {
+  const box = document.querySelector('#cashierList'); if (!box || !document.body.classList.contains('boss-mode')) return;
+  const res = await fetch('/api/cashiers'); if (!res.ok) return; const data = await res.json();
+  box.innerHTML = (data.cashiers || []).map(c => `<div class="cashier-row"><strong>${escapeHtml(c.name)}</strong><span>${c.active ? 'چالاک' : 'ناچالاک'}</span><button class="row-button" data-cashier-reset="${c.id}">گۆڕینی PIN</button></div>`).join('');
+}
+document.querySelector('#cashierForm')?.addEventListener('submit', async event => { event.preventDefault(); const name=document.querySelector('#cashierName').value.trim(), pin=document.querySelector('#cashierPin').value; const res=await fetch('/api/cashiers',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({name,pin})}); if(!res.ok){alert('نەتوانرا کاشێر زیاد بکرێت');return;} event.target.reset(); loadCashiers(); });
 document.addEventListener("click", async (event) => {
   const editButton = event.target.closest("[data-edit]");
   const deleteButton = event.target.closest("[data-delete]");
   if (editButton) editRecord(editButton.dataset.edit);
   if (deleteButton) deleteRecord(deleteButton.dataset.delete);
   const lendingDelete = event.target.closest("[data-lending-delete]"); if (lendingDelete) { const id = lendingDelete.dataset.lendingDelete; lendingDelete.disabled = true; try { const res = await fetch(`/api/lending?id=${encodeURIComponent(id)}`, { method: "DELETE" }); if (!res.ok) throw new Error("Delete failed"); const list = await fetch("/api/lending"); if (!list.ok) throw new Error("Refresh failed"); const data = await list.json(); state.lendings = data.records || []; renderLendings(); } catch { lendingDelete.disabled = false; alert("نەتوانرا تۆمارەکە بسڕدرێتەوە"); } }
+  const reset = event.target.closest('[data-cashier-reset]'); if (reset) { const pin = prompt('PIN ـی نوێی ٤ ژمارەیی'); if (!/^\d{4}$/.test(pin || '')) return; const res=await fetch('/api/cashiers',{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify({id:reset.dataset.cashierReset,pin})}); if(res.ok) alert('PIN نوێ کرایەوە'); }
 });
 
 setTodayTime();
 renderAll();
 void (async()=>{try{const res=await fetch("/api/lending");if(res.ok){const data=await res.json();state.lendings=data.records||[];renderLendings();}}catch{}})();
+void loadCashiers();
 
 
 
