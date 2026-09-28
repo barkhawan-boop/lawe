@@ -17,8 +17,8 @@
       document.body.append(script);
     });
   }
-  async function unlock() {
-    const bossMode = input.value === '1122';
+  async function unlock(user) {
+    const bossMode = user?.role === 'boss';
     document.body.classList.toggle('boss-mode', bossMode);
     if (!loaded) {
       await loadScript('export.js');
@@ -58,6 +58,7 @@
           const message = await res.json();
           throw new Error(message.error || 'Unable to sign in.');
         }
+        window.LAWE_USER = await res.json();
       } else {
         if (Date.now() < localBlockedUntil) throw new Error('Try again in one minute.');
         if (!window.checkLocalPin) await loadScript('local-pin.js');
@@ -67,7 +68,7 @@
         }
         localAttempts = 0;
       }
-      await unlock();
+      await unlock(window.LAWE_USER || { role: input.value === '1122' ? 'boss' : 'cashier', name: 'Cashier' });
     } catch (e) { error.textContent = e.message; input.select(); }
     finally { submit.disabled = false; }
   });

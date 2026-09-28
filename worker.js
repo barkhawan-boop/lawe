@@ -14,17 +14,18 @@ async function key(secret) {
   return crypto.subtle.importKey('raw', encoder.encode(secret), { name: 'HMAC', hash: 'SHA-256' }, false, ['sign', 'verify']);
 }
 function hex(bytes) { return Array.from(new Uint8Array(bytes), b => b.toString(16).padStart(2, '0')).join(''); }
-async function authenticated(request, env) {
-  if (!env.SESSION_SECRET || (!env.APP_PIN && !env.BOSS_PIN)) return false;
+async function sessionInfo(request, env) {
   const token = request.headers.get('Cookie')?.split(';').map(v => v.trim()).find(v => v.startsWith(cookieName + '='))?.slice(cookieName.length + 1);
-  if (!token) return false;
-  const [expiry, nonce, signature] = token.split('.');
-  if (!/^\d+$/.test(expiry) || !/^[a-f0-9]{32}$/.test(nonce || '') || !/^[a-f0-9]{64}$/.test(signature || '')) return false;
+  const [expiry, nonce, role, encodedName, signature] = token?.split('.') || [];
+  if (!/^\d+$/.test(expiry || '') || !/^[a-f0-9]{32}$/.test(nonce || '') || !['boss','cashier'].includes(role) || !/^[a-f0-9]{64}$/.test(signature || '')) return null;
   const now = Math.floor(Date.now() / 1000);
-  if (+expiry <= now || +expiry > now + SESSION_SECONDS) return false;
-  return crypto.subtle.verify('HMAC', await key(env.SESSION_SECRET),
-    Uint8Array.from(signature.match(/../g), h => parseInt(h, 16)), encoder.encode(expiry + '.' + nonce));
+  if (+expiry <= now || +expiry > now + SESSION_SECONDS) return null;
+  const signed = expiry + '.' + nonce + '.' + role + '.' + encodedName;
+  const valid = await crypto.subtle.verify('HMAC', await key(env.SESSION_SECRET), Uint8Array.from(signature.match(/../g), h => parseInt(h, 16)), encoder.encode(signed));
+  return valid ? { role, name: decodeURIComponent(encodedName || '') } : null;
 }
+async function authenticated(request, env) { return !!(await sessionInfo(request, env)); }
+async function isBossSession(request, env) { return (await sessionInfo(request, env))?.role === 'boss'; }
 function cookie(value, age, request) {
   const secure = new URL(request.url).protocol === 'https:' ? '; Secure' : '';
   return cookieName + '=' + value + '; HttpOnly; SameSite=Strict; Path=/; Max-Age=' + age + secure;
@@ -49,7 +50,15 @@ async function readSmallJson(request) {
 export default {
   async fetch(request, env) {
     const url = new URL(request.url);
-    if (url.pathname === '/api/lending' && await authenticated(request, env)) { if (!env.lawe_cash_desk) return respond('{"error":"Database not configured"}',503); if (request.method === 'GET') { const q=await env.lawe_cash_desk.prepare('SELECT id,person,phone,usd,iqd,fib,super_qi AS superQi,direction FROM lending_records ORDER BY created_at DESC').all(); return respond(JSON.stringify({records:q.results})); } if (request.method === 'DELETE') { const id=url.searchParams.get('id'); if (!id) return respond('{"error":"Missing id"}',400); const result=await env.lawe_cash_desk.prepare('DELETE FROM lending_records WHERE id = ?').bind(id).run(); return respond(JSON.stringify({deleted:result.meta?.changes || 0})); } if (request.method === 'POST') { const x=await request.json(); const id=crypto.randomUUID(); await env.lawe_cash_desk.prepare('INSERT INTO lending_records (id,person,phone,usd,iqd,fib,super_qi,direction) VALUES (?,?,?,?,?,?,?,?)').bind(id,x.person,x.phone||'',Number(x.usd)||0,Number(x.iqd)||0,Number(x.fib)||0,Number(x.superQi)||0,x.direction).run(); return respond(JSON.stringify({id}),201); } }
+    if (url.pathname === '/api/me' && request.method === 'GET') { const info = await sessionInfo(request, env); return respond(JSON.stringify(info ? { authenticated: true, ...info } : { authenticated: false })); }
+    if (url.pathname === '/api/cashiers' && await isBossSession(request, env)) {
+      if (!env.lawe_cash_desk) return respond('{"error":"Database not configured"}',503);
+      if (request.method === 'GET') { const q = await env.lawe_cash_desk.prepare('SELECT id,name,active,created_at FROM cashiers ORDER BY name').all(); return respond(JSON.stringify({ cashiers: q.results })); }
+      if (request.method === 'POST') { const x = await request.json(); if (!x.name || !/^\d{4}$/.test(x.pin)) return respond('{"error":"Name and four digit PIN required"}',400); const hash = hex(await crypto.subtle.digest('SHA-256', encoder.encode(x.pin))); try { const id = crypto.randomUUID(); await env.lawe_cash_desk.prepare('INSERT INTO cashiers (id,name,pin_hash) VALUES (?,?,?)').bind(id,x.name.trim(),hash).run(); return respond(JSON.stringify({id,name:x.name.trim()}),201); } catch { return respond('{"error":"Cashier name or PIN already exists"}',409); } }
+      if (request.method === 'PUT') { const x = await request.json(); if (!x.id || !/^\d{4}$/.test(x.pin)) return respond('{"error":"Cashier id and four digit PIN required"}',400); const hash = hex(await crypto.subtle.digest('SHA-256', encoder.encode(x.pin))); await env.lawe_cash_desk.prepare('UPDATE cashiers SET pin_hash=?,active=1 WHERE id=?').bind(hash,x.id).run(); return respond('{}'); }
+      return respond('{"error":"Method not allowed"}',405);
+    }
+    if (url.pathname === '/api/lending' && await authenticated(request, env)) { if (!env.lawe_cash_desk) return respond('{"error":"Database not configured"}',503); if (request.method === 'GET') { const q=await env.lawe_cash_desk.prepare('SELECT id,person,phone,usd,iqd,fib,super_qi AS superQi,direction,cashier_name AS cashierName FROM lending_records ORDER BY created_at DESC').all(); return respond(JSON.stringify({records:q.results})); } if (request.method === 'DELETE') { const id=url.searchParams.get('id'); if (!id) return respond('{"error":"Missing id"}',400); const result=await env.lawe_cash_desk.prepare('DELETE FROM lending_records WHERE id = ?').bind(id).run(); return respond(JSON.stringify({deleted:result.meta?.changes || 0})); } if (request.method === 'POST') { const x=await request.json(); const id=crypto.randomUUID(); await env.lawe_cash_desk.prepare('INSERT INTO lending_records (id,person,phone,usd,iqd,fib,super_qi,direction,cashier_name) VALUES (?,?,?,?,?,?,?,?,?)').bind(id,x.person,x.phone||'',Number(x.usd)||0,Number(x.iqd)||0,Number(x.fib)||0,Number(x.superQi)||0,x.direction,(await sessionInfo(request, env))?.name || '').run(); return respond(JSON.stringify({id}),201); } }
     if (url.pathname.startsWith('/api/')) {
       if (url.pathname === '/api/session' && request.method === 'GET') {
         return respond(JSON.stringify({ authenticated: await authenticated(request, env) }));
@@ -64,12 +73,17 @@ export default {
       let input;
       try { input = await readSmallJson(request); } catch { return respond('{"error":"Invalid request"}', 400); }
       if (typeof input?.pin !== 'string' || !/^\d{4}$/.test(input.pin)) return respond('{"error":"Incorrect PIN"}', 401);
-      const expected = await crypto.subtle.digest('SHA-256', encoder.encode(input.pin === env.BOSS_PIN ? env.BOSS_PIN : env.APP_PIN));
-      const actual = await crypto.subtle.digest('SHA-256', encoder.encode(input.pin));
-      if (!crypto.subtle.timingSafeEqual(expected, actual)) return respond('{"error":"Incorrect PIN"}', 401);
-      const payload = Math.floor(Date.now() / 1000 + SESSION_SECONDS) + '.' + hex(crypto.getRandomValues(new Uint8Array(16)));
+      let role = null, name = '';
+      if (input.pin === env.BOSS_PIN) { role = 'boss'; name = 'Boss'; }
+      else if (env.lawe_cash_desk) {
+        const hash = hex(await crypto.subtle.digest('SHA-256', encoder.encode(input.pin)));
+        const cashier = await env.lawe_cash_desk.prepare('SELECT name FROM cashiers WHERE pin_hash = ? AND active = 1').bind(hash).first();
+        if (cashier) { role = 'cashier'; name = cashier.name; }
+      }
+      if (!role) return respond('{"error":"Incorrect PIN"}', 401);
+      const payload = Math.floor(Date.now() / 1000 + SESSION_SECONDS) + '.' + hex(crypto.getRandomValues(new Uint8Array(16))) + '.' + role + '.' + encodeURIComponent(name);
       const signature = hex(await crypto.subtle.sign('HMAC', await key(env.SESSION_SECRET), encoder.encode(payload)));
-      return respond('{}', 200, { 'Set-Cookie': cookie(payload + '.' + signature, SESSION_SECONDS, request) });
+      return respond(JSON.stringify({ role, name }), 200, { 'Set-Cookie': cookie(payload + '.' + signature, SESSION_SECONDS, request) });
     }
     if (!['GET', 'HEAD'].includes(request.method)) return respond('{"error":"Method not allowed"}', 405);
     if (!publicAssets.has(url.pathname) && !protectedAssets.has(url.pathname)) return respond('{"error":"Not found"}', 404);

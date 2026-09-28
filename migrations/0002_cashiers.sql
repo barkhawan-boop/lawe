@@ -1,0 +1,3 @@
+CREATE TABLE IF NOT EXISTS cashiers (id TEXT PRIMARY KEY, name TEXT NOT NULL UNIQUE, pin_hash TEXT NOT NULL UNIQUE, active INTEGER NOT NULL DEFAULT 1, created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP);
+ALTER TABLE lending_records ADD COLUMN cashier_name TEXT NOT NULL DEFAULT '';
+CREATE INDEX IF NOT EXISTS idx_lending_cashier ON lending_records(cashier_name);
