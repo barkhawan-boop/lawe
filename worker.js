@@ -58,6 +58,11 @@ export default {
       if (request.method === 'PUT') { const x = await request.json(); if (!x.id || !/^\d{4}$/.test(x.pin)) return respond('{"error":"Cashier id and four digit PIN required"}',400); const hash = hex(await crypto.subtle.digest('SHA-256', encoder.encode(x.pin))); await env.lawe_cash_desk.prepare('UPDATE cashiers SET pin_hash=?,active=1 WHERE id=?').bind(hash,x.id).run(); return respond('{}'); }
       return respond('{"error":"Method not allowed"}',405);
     }
+    if (url.pathname === '/api/cashier-names' && await authenticated(request, env) && request.method === 'GET') {
+      if (!env.lawe_cash_desk) return respond('{"error":"Database not configured"}',503);
+      const q = await env.lawe_cash_desk.prepare("SELECT name FROM cashiers WHERE active=1 UNION SELECT DISTINCT cashier_name AS name FROM cash_records WHERE cashier_name <> '' UNION SELECT DISTINCT cashier_name AS name FROM lending_records WHERE cashier_name <> '' ORDER BY name").all();
+      return respond(JSON.stringify({ cashiers: q.results.map(row => row.name).filter(Boolean) }));
+    }
     if (url.pathname === '/api/records' && await authenticated(request, env)) {
       if (!env.lawe_cash_desk) return respond('{"error":"Database not configured"}',503);
       const db = env.lawe_cash_desk;

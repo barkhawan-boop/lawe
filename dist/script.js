@@ -59,6 +59,7 @@ const initialState = {
 let state = loadState();
 let activeKind = "buy";
 let editingId = null;
+let cashierNames = [];
 state.records = state.records.map(record => ({ ...record, date: record.date || state.businessDate }));
 state.businessDate = currentDate();
 saveState();
@@ -240,12 +241,16 @@ function renderTables() {
 }
 
 function populateCashierFilters() {
-  const names = [...new Set((state.records || []).map(r => r.cashierName).filter(Boolean))].sort((a, b) => a.localeCompare(b));
+  const names = [...new Set([...cashierNames, ...(state.records || []).map(r => r.cashierName).filter(Boolean)])].sort((a, b) => a.localeCompare(b));
   document.querySelectorAll(".cashierFilter, .serviceCashierFilter").forEach(select => {
     const current = select.value;
     select.innerHTML = '<option value="">هەموو کاشێرەکان</option>' + names.map(name => `<option value="${escapeHtml(name)}">${escapeHtml(name)}</option>`).join("");
     if (names.includes(current)) select.value = current;
   });
+}
+
+async function loadCashierNames() {
+  try { const res = await fetch("/api/cashier-names"); if (res.ok) { cashierNames = (await res.json()).cashiers || []; populateCashierFilters(); } } catch {}
 }
 
 function escapeHtml(value) {
@@ -436,7 +441,7 @@ async function loadCashiers() {
   const res = await fetch('/api/cashiers'); if (!res.ok) return; const data = await res.json();
   box.innerHTML = (data.cashiers || []).map(c => `<div class="cashier-row"><strong>${escapeHtml(c.name)}</strong><span>${c.active ? 'چالاک' : 'ناچالاک'}</span><button class="row-button" data-cashier-reset="${c.id}">گۆڕینی PIN</button></div>`).join('');
 }
-document.querySelector('#cashierForm')?.addEventListener('submit', async event => { event.preventDefault(); const name=document.querySelector('#cashierName').value.trim(), pin=document.querySelector('#cashierPin').value; const res=await fetch('/api/cashiers',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({name,pin})}); if(!res.ok){alert('نەتوانرا کاشێر زیاد بکرێت');return;} event.target.reset(); loadCashiers(); });
+document.querySelector('#cashierForm')?.addEventListener('submit', async event => { event.preventDefault(); const name=document.querySelector('#cashierName').value.trim(), pin=document.querySelector('#cashierPin').value; const res=await fetch('/api/cashiers',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({name,pin})}); if(!res.ok){alert('نەتوانرا کاشێر زیاد بکرێت');return;} event.target.reset(); loadCashiers(); loadCashierNames(); });
 document.addEventListener("click", async (event) => {
   const editButton = event.target.closest("[data-edit]");
   const deleteButton = event.target.closest("[data-delete]");
@@ -450,6 +455,7 @@ setTodayTime();
 renderAll();
 void (async()=>{try{const res=await fetch("/api/lending");if(res.ok){const data=await res.json();state.lendings=data.records||[];renderLendings();}}catch{}})();
 void loadCashiers();
+void loadCashierNames();
 
 
 
