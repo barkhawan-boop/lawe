@@ -186,12 +186,12 @@ function renderTables() {
   const minAmount = Number(els.minAmount.value) || 0;
   const maxAmount = Number(els.maxAmount.value) || Infinity;
   const fromDate = els.fromDate.value;
-  const toDate = els.toDate.value;
+  const toDate = els.toDate.value;\n  const cashierFilter = (document.querySelector(".cashierFilter")?.value || "").trim().toLowerCase();
   const exchangeRecords = state.records.filter((record) => ["buy", "sell"].includes(record.kind));
   const serviceRecords = state.records.filter((record) => record.kind === "service");
   const visibleExchange = exchangeRecords.filter((record) => {
-    const haystack = `${record.kind} ${record.date || state.businessDate} ${record.customer} ${record.reference} ${record.usd} ${record.rate}`.toLowerCase();
-    return haystack.includes(search) && (!kind || record.kind === kind) && (Number(record.usd || record.amount || 0) >= minAmount) && (Number(record.usd || record.amount || 0) <= maxAmount) && (!fromDate || (record.date || "") >= fromDate) && (!toDate || (record.date || "") <= toDate);
+    const haystack = `${record.kind} ${record.date || state.businessDate} ${record.customer} ${record.reference} ${record.cashierName || "Manager"} ${record.usd} ${record.rate}`.toLowerCase();
+    return haystack.includes(search) && (!cashierFilter || haystack.includes(cashierFilter)) && (!kind || record.kind === kind) && (Number(record.usd || record.amount || 0) >= minAmount) && (Number(record.usd || record.amount || 0) <= maxAmount) && (!fromDate || (record.date || "") >= fromDate) && (!toDate || (record.date || "") <= toDate);
   });
 
   els.exchangeBody.innerHTML = visibleExchange.length ? visibleExchange.map((record, index) => `
@@ -389,7 +389,7 @@ document.querySelectorAll(".segment").forEach((button) => {
 
 [els.usdAmount, els.rate].forEach((input) => input.addEventListener("input", calculateIqd));
 els.entryForm.addEventListener("submit", saveRecord);
-els.lendingForm.addEventListener("submit", addLending); els.lendingListFilter?.addEventListener("change", ()=>{els.lendingListFilter.dataset.userChanged="1";renderLendings();}); document.querySelectorAll("[data-lending-filter]").forEach(x=>x.addEventListener("input",renderLendings));
+els.lendingForm.addEventListener("submit", addLending); els.lendingListFilter?.addEventListener("change", ()=>{els.lendingListFilter.dataset.userChanged="1";renderLendings();}); document.querySelectorAll("[data-lending-filter]").forEach(x=>x.addEventListener("input",renderLendings)); document.querySelectorAll(".cashierFilter").forEach(x=>x.addEventListener("input",renderTables));
 els.lendingDirection.addEventListener("change", () => els.lendingDirection.className = els.lendingDirection.value === "green" ? "direction-green" : "direction-red");
 els.lendingDirection.className = "direction-green";
 els.cancelEditBtn.addEventListener("click", resetForm);
