@@ -218,7 +218,9 @@ function renderTables() {
 
   const visibleServices = serviceRecords.filter((record) => {
     const haystack = `${record.service || ""} ${record.direction || ""} ${record.customer || ""} ${record.reference || ""} ${record.cashierName || "Manager"}`.toLowerCase();
-    return (!serviceTypeFilter || record.service === serviceTypeFilter) && (!serviceActionFilter || record.direction === serviceActionFilter) && (!serviceCashierFilter || haystack.includes(serviceCashierFilter)) && (!serviceFromDate || (record.date || "") >= serviceFromDate) && (!serviceToDate || (record.date || "") <= serviceToDate);
+    const namedServices = ["FIB", "Qi Card", "NassWallet"];
+    const typeMatches = !serviceTypeFilter || (serviceTypeFilter === "__other" ? !namedServices.includes(record.service) : record.service === serviceTypeFilter);
+    return typeMatches && (!serviceActionFilter || record.direction === serviceActionFilter) && (!serviceCashierFilter || haystack.includes(serviceCashierFilter)) && (!serviceFromDate || (record.date || "") >= serviceFromDate) && (!serviceToDate || (record.date || "") <= serviceToDate);
   });
   els.serviceBody.innerHTML = visibleServices.length ? visibleServices.map((record, index) => `
     <tr>
