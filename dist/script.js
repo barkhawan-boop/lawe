@@ -313,27 +313,17 @@ function validateRecord(record) {
   return record.usd > 0 && record.rate > 0;
 }
 
-function saveRecord(event) {
+async function saveRecord(event) {
   event.preventDefault();
   syncCalendarDate();
   const record = recordFromForm();
-  if (!validateRecord(record)) {
-    alert("تکایە بڕ و نرخ بە دروستی بنووسە.");
-    return;
-  }
-
-  if (editingId) {
-    state.records = state.records.map((item) => item.id === editingId ? record : item);
-  } else {
-    state.records.push(record);
-  }
-
-  saveState();
-  resetForm();
-  renderAll();
-void (async()=>{try{const res=await fetch("/api/lending");if(res.ok){const data=await res.json();state.lendings=data.records||[];renderLendings();}}catch{}})();
+  if (!validateRecord(record)) { alert("تکایە بڕ و نرخ بە دروستی بنووسە."); return; }
+  const response = await fetch("/api/records", { method: editingId ? "PUT" : "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(record) });
+  if (!response.ok) { alert("تۆمارەکە لە بنکەدراوە پاشەکەوت نەکرا"); return; }
+  if (editingId) state.records = state.records.map((item) => item.id === editingId ? record : item); else state.records.push(record);
+  saveState(); resetForm(); renderAll();
 }
-
+void (async()=>{try{const res=await fetch("/api/records"); if(!res.ok) return; const data=await res.json(); if(data.records?.length){ state.records=data.records; saveState(); renderAll(); } else if(state.records.length){ for(const record of state.records) await fetch("/api/records",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(record)}); const fresh=await fetch("/api/records"); if(fresh.ok){state.records=(await fresh.json()).records||[]; saveState(); renderAll();} } }catch{}})();
 function editRecord(id) {
   const record = state.records.find((item) => item.id === id);
   if (!record) return;
@@ -359,15 +349,14 @@ function editRecord(id) {
   }
 }
 
-function deleteRecord(id) {
+async function deleteRecord(id) {
   if (!confirm("Delete this record?")) return;
+  const response = await fetch(`/api/records?id=${encodeURIComponent(id)}`, { method: "DELETE" });
+  if (!response.ok) { alert("نەتوانرا تۆمارەکە بسڕدرێتەوە"); return; }
   state.records = state.records.filter((record) => record.id !== id);
   if (editingId === id) resetForm();
-  saveState();
-  renderAll();
-void (async()=>{try{const res=await fetch("/api/lending");if(res.ok){const data=await res.json();state.lendings=data.records||[];renderLendings();}}catch{}})();
+  saveState(); renderAll();
 }
-
 function download(filename, content, type) {
   const blob = new Blob([content], { type });
   const url = URL.createObjectURL(blob);
