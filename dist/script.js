@@ -239,6 +239,15 @@ function renderTables() {
   `).join("") : `<tr><td class="empty-row" colspan="11">هیچ خزمەتگوزارییەک تۆمار نەکراوە</td></tr>`;
 }
 
+function populateCashierFilters() {
+  const names = [...new Set((state.records || []).map(r => r.cashierName).filter(Boolean))].sort((a, b) => a.localeCompare(b));
+  document.querySelectorAll(".cashierFilter, .serviceCashierFilter").forEach(select => {
+    const current = select.value;
+    select.innerHTML = '<option value="">هەموو کاشێرەکان</option>' + names.map(name => `<option value="${escapeHtml(name)}">${escapeHtml(name)}</option>`).join("");
+    if (names.includes(current)) select.value = current;
+  });
+}
+
 function escapeHtml(value) {
   return String(value).replace(/[&<>"']/g, (char) => ({
     "&": "&amp;",
@@ -253,6 +262,7 @@ function renderLendings() { if (els.lendingListFilter && !els.lendingListFilter.
 
 function renderAll() {
   renderSummary();
+  populateCashierFilters();
   renderTables();
   renderLendings();
 }
