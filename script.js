@@ -439,7 +439,7 @@ document.addEventListener("visibilitychange", () => {
 async function loadCashiers() {
   const box = document.querySelector('#cashierList'); if (!box || !document.body.classList.contains('boss-mode')) return;
   const res = await fetch('/api/cashiers'); if (!res.ok) return; const data = await res.json();
-  box.innerHTML = (data.cashiers || []).map(c => `<div class="cashier-row"><strong>${escapeHtml(c.name)}</strong><span>${c.active ? 'چالاک' : 'ناچالاک'}</span><button class="row-button" data-cashier-reset="${c.id}">گۆڕینی PIN</button></div>`).join('');
+  box.innerHTML = (data.cashiers || []).map(c => `<div class="cashier-row"><strong>${escapeHtml(c.name)}</strong><span>${c.active ? 'چالاک' : 'ناچالاک'}</span><button class="row-button" data-cashier-edit="${c.id}" data-cashier-name="${escapeHtml(c.name)}">گۆڕینی ناو و PIN</button></div>`).join('');
 }
 document.querySelector('#cashierForm')?.addEventListener('submit', async event => { event.preventDefault(); const name=document.querySelector('#cashierName').value.trim(), pin=document.querySelector('#cashierPin').value; const res=await fetch('/api/cashiers',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({name,pin})}); if(!res.ok){alert('نەتوانرا کاشێر زیاد بکرێت');return;} event.target.reset(); loadCashiers(); loadCashierNames(); });
 document.addEventListener("click", async (event) => {
@@ -448,7 +448,7 @@ document.addEventListener("click", async (event) => {
   if (editButton) editRecord(editButton.dataset.edit);
   if (deleteButton) deleteRecord(deleteButton.dataset.delete);
   const lendingDelete = event.target.closest("[data-lending-delete]"); if (lendingDelete) { const id = lendingDelete.dataset.lendingDelete; lendingDelete.disabled = true; try { const res = await fetch(`/api/lending?id=${encodeURIComponent(id)}`, { method: "DELETE" }); if (!res.ok) throw new Error("Delete failed"); const list = await fetch("/api/lending"); if (!list.ok) throw new Error("Refresh failed"); const data = await list.json(); state.lendings = data.records || []; renderLendings(); } catch { lendingDelete.disabled = false; alert("نەتوانرا تۆمارەکە بسڕدرێتەوە"); } }
-  const reset = event.target.closest('[data-cashier-reset]'); if (reset) { const pin = prompt('PIN ـی نوێی ٤ ژمارەیی'); if (!/^\d{4}$/.test(pin || '')) return; const res=await fetch('/api/cashiers',{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify({id:reset.dataset.cashierReset,pin})}); if(res.ok) alert('PIN نوێ کرایەوە'); }
+  const cashierEdit = event.target.closest('[data-cashier-edit]'); if (cashierEdit) { const name = prompt('ناوی نوێی کاشێر', cashierEdit.dataset.cashierName || ''); if (!name?.trim()) return; const pin = prompt('PIN ـی نوێی ٤ ژمارەیی (بەتاڵ بهێڵەوە بۆ گۆڕینی تەنها ناو)'); if (pin && !/^\d{4}$/.test(pin)) return; const res=await fetch('/api/cashiers',{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify({id:cashierEdit.dataset.cashierEdit,name:name.trim(),...(pin ? {pin} : {})})}); if(res.ok){ alert('ناو و PIN پاشەکەوت کران'); loadCashiers(); loadCashierNames(); } else alert('نەتوانرا زانیارییەکە بگۆڕدرێت'); }
 });
 
 setTodayTime();
