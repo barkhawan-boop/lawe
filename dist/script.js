@@ -204,10 +204,11 @@ function renderTables() {
       <td data-ltr="true">${record.date || state.businessDate || ""}</td>
       <td data-ltr="true">${record.time || ""}</td>
       <td>${escapeHtml(record.customer || "")}</td>
+      <td>${escapeHtml(record.cashierName || "")}</td>
       <td>${escapeHtml(record.reference || "")}</td>
       <td>${rowActions(record)}</td>
     </tr>
-  `).join("") : `<tr><td class="empty-row" colspan="10">هیچ تۆمارێک نییە</td></tr>`;
+  `).join("") : `<tr><td class="empty-row" colspan="11">هیچ تۆمارێک نییە</td></tr>`;
 
   els.serviceBody.innerHTML = serviceRecords.length ? serviceRecords.map((record, index) => `
     <tr>
@@ -219,10 +220,11 @@ function renderTables() {
       <td data-ltr="true">${record.date || state.businessDate || ""}</td>
       <td data-ltr="true">${record.time || ""}</td>
       <td>${escapeHtml(record.customer || "")}</td>
+      <td>${escapeHtml(record.cashierName || "")}</td>
       <td>${escapeHtml(record.reference || "")}</td>
       <td>${rowActions(record)}</td>
     </tr>
-  `).join("") : `<tr><td class="empty-row" colspan="10">هیچ خزمەتگوزارییەک تۆمار نەکراوە</td></tr>`;
+  `).join("") : `<tr><td class="empty-row" colspan="11">هیچ خزمەتگوزارییەک تۆمار نەکراوە</td></tr>`;
 }
 
 function escapeHtml(value) {
@@ -269,6 +271,7 @@ function recordFromForm() {
     kind: activeKind,
     date: els.actionDate.value || state.businessDate,
     time: els.time.value,
+    cashierName: window.LAWE_USER?.name || "",
     customer: els.customer.value.trim() || "",
     reference: els.reference.value.trim() || ""
   };
