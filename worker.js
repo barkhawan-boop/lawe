@@ -63,6 +63,17 @@ export default {
       const q = await env.lawe_cash_desk.prepare("SELECT name FROM cashiers WHERE active=1 UNION SELECT DISTINCT cashier_name AS name FROM cash_records WHERE cashier_name <> '' UNION SELECT DISTINCT cashier_name AS name FROM lending_records WHERE cashier_name <> '' ORDER BY name").all();
       return respond(JSON.stringify({ cashiers: q.results.map(row => row.name).filter(Boolean) }));
     }
+    if (url.pathname === '/api/cashier-day' && await authenticated(request, env)) {
+      if (!env.lawe_cash_desk) return respond('{"error":"Database not configured"}',503);
+      const info = await sessionInfo(request, env); if (info.role !== 'cashier') return respond('{"error":"Cashier session required"}',403);
+      if (request.method === 'GET') { const q=await env.lawe_cash_desk.prepare('SELECT * FROM cashier_days WHERE cashier_name=? ORDER BY business_date DESC LIMIT 1').bind(info.name).first(); return respond(JSON.stringify({day:q||null})); }
+      if (request.method !== 'POST') return respond('{"error":"Method not allowed"}',405);
+      const x=await request.json(); const hash=hex(await crypto.subtle.digest('SHA-256',encoder.encode(x.pin||''))); const cashier=await env.lawe_cash_desk.prepare('SELECT id FROM cashiers WHERE name=? AND pin_hash=? AND active=1').bind(info.name,hash).first(); if(!cashier) return respond('{"error":"Incorrect PIN"}',401);
+      const date=x.businessDate || new Date().toISOString().slice(0,10); const db=env.lawe_cash_desk;
+      if (x.action === 'open') { const id=crypto.randomUUID(); try { await db.prepare('INSERT INTO cashier_days (id,cashier_name,business_date,opening_usd,opening_iqd,opening_fib,opening_qicard,opening_nasswallet,status) VALUES (?,?,?,?,?,?,?,?,\'open\')').bind(id,info.name,date,Number(x.usd)||0,Number(x.iqd)||0,Number(x.fib)||0,Number(x.qicard)||0,Number(x.nasswallet)||0).run(); return respond(JSON.stringify({id}),201); } catch { return respond('{"error":"Day already opened"}',409); } }
+      if (x.action === 'close') { const result=await db.prepare('UPDATE cashier_days SET closing_usd=?,closing_iqd=?,closing_fib=?,closing_qicard=?,closing_nasswallet=?,status=\'closed\',closed_at=CURRENT_TIMESTAMP WHERE cashier_name=? AND business_date=? AND status=\'open\'').bind(Number(x.usd)||0,Number(x.iqd)||0,Number(x.fib)||0,Number(x.qicard)||0,Number(x.nasswallet)||0,info.name,date).run(); return respond(JSON.stringify({closed:result.meta?.changes||0})); }
+      return respond('{"error":"Invalid action"}',400);
+    }
     if (url.pathname === '/api/records' && await authenticated(request, env)) {
       if (!env.lawe_cash_desk) return respond('{"error":"Database not configured"}',503);
       const db = env.lawe_cash_desk;

@@ -457,6 +457,18 @@ void (async()=>{try{const res=await fetch("/api/lending");if(res.ok){const data=
 void loadCashiers();
 void loadCashierNames();
 
+async function cashierDay(action) {
+  const pin = prompt('PIN ـی کاشێر'); if (!pin) return;
+  const labels = ['USD','IQD','FIB','Qi Card','NassWallet']; const values = {};
+  for (const label of labels) { const value = prompt(`${action === 'open' ? 'Opening' : 'Closing'} ${label}`, '0'); if (value === null) return; values[label.toLowerCase().replace(' ','')] = Number(value) || 0; }
+  const body = { action, pin, businessDate: state.businessDate, usd: values.usd, iqd: values.iqd, fib: values.fib, qicard: values.qicard, nasswallet: values.nasswallet };
+  const res = await fetch('/api/cashier-day',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
+  if (!res.ok) { const data=await res.json().catch(()=>({})); alert(data.error || 'نەتوانرا ڕۆژەکە پاشەکەوت بکرێت'); return; }
+  alert(action === 'open' ? 'ڕۆژ کراوە و بڕەکان پاشەکەوت کران' : 'ڕۆژ داخرا و بڕەکان پاشەکەوت کران');
+}
+document.querySelector('#openDayBtn')?.addEventListener('click',()=>cashierDay('open'));
+document.querySelector('#closeDayBtn')?.addEventListener('click',()=>cashierDay('close'));
+
 
 
 
