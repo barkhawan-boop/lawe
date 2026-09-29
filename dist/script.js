@@ -126,8 +126,9 @@ function calculateIqd() {
   els.iqdAmount.value = iqd ? money(iqd, "IQD") : "";
 }
 
-function totals() {
-  return state.records.reduce((acc, record) => {
+function totals(selectedDate = "") {
+  const records = selectedDate ? state.records.filter(record => (record.date || state.businessDate) === selectedDate) : state.records;
+  const result = records.reduce((acc, record) => {
     if (record.kind === "buy") {
       acc.boughtUsd += record.usd;
       acc.iqdPaid += record.iqd;
@@ -154,17 +155,20 @@ function totals() {
     serviceVolume: 0,
     serviceProfit: 0
   });
+  result.transactionCount = records.length;
+  return result;
 }
 
 function renderSummary() {
-  const t = totals();
+  const selectedDate = els.actionDate?.value || currentDate();
+  const t = totals(selectedDate);
   const usdBalance = numberValue(state.openingUsd) + t.boughtUsd - t.soldUsd;
   const iqdBalance = numberValue(state.openingIqd) + t.iqdReceived - t.iqdPaid;
 
   document.querySelector("#usdBalance").textContent = money(usdBalance, "USD");
   document.querySelector("#iqdBalance").textContent = money(iqdBalance, "IQD");
   document.querySelector("#serviceProfit").textContent = money(t.serviceProfit, "IQD");
-  document.querySelector("#transactionCount").textContent = state.records.length;
+  document.querySelector("#transactionCount").textContent = t.transactionCount;
   document.querySelector("#totalBought").textContent = money(t.boughtUsd, "USD");
   document.querySelector("#totalIqdPaid").textContent = money(t.iqdPaid, "IQD");
   document.querySelector("#totalSold").textContent = money(t.soldUsd, "USD");
@@ -415,6 +419,7 @@ els.minAmount.addEventListener("input", renderTables);
 els.maxAmount.addEventListener("input", renderTables);
 els.fromDate.addEventListener("input", renderTables);
 els.toDate.addEventListener("input", renderTables);
+els.actionDate.addEventListener("input", renderSummary);
 document.querySelector("#exportExcelBtn").addEventListener("click", exportExcel);
 const toggleExchangeBtn=document.querySelector("#toggleExchangeBtn"); const exchangeTable=document.querySelector("#exchangeBody")?.closest(".table-wrap"); exchangeTable?.classList.add("is-collapsed"); toggleExchangeBtn?.addEventListener("click",()=>{const collapsed=exchangeTable.classList.toggle("is-collapsed"); const open=!collapsed; toggleExchangeBtn.textContent=open?"شاردنەوەی تۆمارەکان":"پیشاندانی تۆمارەکان";});
 
