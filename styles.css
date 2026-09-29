@@ -56,9 +56,10 @@ button {
   gap: 18px;
   border-bottom: 4px solid var(--yellow);
   direction: ltr;
+  position: relative;
 }
 
-.topbar > div:first-child { margin-right: auto; text-align: left; direction: rtl; }
+.topbar > div:first-child { position: absolute; left: clamp(18px, 4vw, 48px); margin: 0; text-align: left; direction: ltr; }
 .topbar .top-actions { margin-left: auto; }
 
 .eyebrow {
