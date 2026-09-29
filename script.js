@@ -142,6 +142,8 @@ function totals(selectedDate = "") {
     if (record.kind === "service") {
       acc.serviceVolume += record.amount;
       acc.serviceProfit += record.fee;
+      const serviceKey = record.service === "FIB" ? "fib" : record.service === "Qi Card" ? "qiCard" : record.service === "NassWallet" ? "nassWallet" : "otherServices";
+      acc[serviceKey] += record.amount;
       if (record.direction === "deposit") acc.iqdReceived += record.amount + record.fee;
       if (record.direction === "withdraw") acc.iqdPaid += record.amount;
     }
@@ -153,7 +155,11 @@ function totals(selectedDate = "") {
     iqdPaid: 0,
     iqdReceived: 0,
     serviceVolume: 0,
-    serviceProfit: 0
+    serviceProfit: 0,
+    fib: 0,
+    qiCard: 0,
+    nassWallet: 0,
+    otherServices: 0
   });
   result.transactionCount = records.length;
   return result;
@@ -174,6 +180,11 @@ function renderSummary() {
   document.querySelector("#totalSold").textContent = money(t.soldUsd, "USD");
   document.querySelector("#totalIqdReceived").textContent = money(t.iqdReceived, "IQD");
   document.querySelector("#totalServiceVolume").textContent = money(t.serviceVolume, "IQD");
+  document.querySelector("#totalFib").textContent = money(t.fib, "IQD");
+  document.querySelector("#totalQiCard").textContent = money(t.qiCard, "IQD");
+  document.querySelector("#totalNassWallet").textContent = money(t.nassWallet, "IQD");
+  document.querySelector("#totalOtherServices").textContent = money(t.otherServices, "IQD");
+  document.querySelector("#totalDayRecords").textContent = t.transactionCount;
 }
 
 function rowActions(record) {
