@@ -474,6 +474,7 @@ void loadCashiers();
 void loadCashierNames();
 
 async function cashierDay(action) {
+  if (action === 'open') { const existing = await fetch(`/api/cashier-day?date=${encodeURIComponent(state.businessDate)}`).then(r=>r.ok?r.json():({})).catch(()=>({})); if (existing.day) { alert('ئەم ڕۆژە پێشتر کرایەوە؛ تەنها دەتوانیت داخستنی ڕۆژ بگۆڕیت.'); return; } }
   const pin = prompt('PIN ـی کاشێر'); if (!pin) return;
   const labels = ['USD','IQD','FIB','Qi Card','NassWallet']; const values = {};
   for (const label of labels) { const value = prompt(`${action === 'open' ? 'Opening' : 'Closing'} ${label}`, '0'); if (value === null) return; values[label.toLowerCase().replace(' ','')] = Number(value) || 0; }
@@ -484,6 +485,8 @@ async function cashierDay(action) {
 }
 document.querySelector('#openDayBtn')?.addEventListener('click',()=>cashierDay('open'));
 document.querySelector('#closeDayBtn')?.addEventListener('click',()=>cashierDay('close'));
+async function refreshCashierDayState() { const btn=document.querySelector('#openDayBtn'); if(!btn) return; const data=await fetch(`/api/cashier-day?date=${encodeURIComponent(state.businessDate)}`).then(r=>r.ok?r.json():({})).catch(()=>({})); btn.disabled=!!data.day; btn.title=data.day?'Opening balance is shared for this day':'Open the shared opening balance'; }
+void refreshCashierDayState();
 
 
 
