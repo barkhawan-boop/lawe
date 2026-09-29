@@ -55,7 +55,11 @@ button {
   justify-content: space-between;
   gap: 18px;
   border-bottom: 4px solid var(--yellow);
+  direction: ltr;
 }
+
+.topbar > div:first-child { margin-right: auto; text-align: left; direction: rtl; }
+.topbar .top-actions { margin-left: auto; }
 
 .eyebrow {
   margin: 0 0 4px;
